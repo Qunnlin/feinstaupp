@@ -38,8 +38,8 @@ export default {
         .then(response => response.json())
         .then( weatherData => {
             this.loading = false;
-            console.log(weatherData);
-            post = weatherData;
+            //console.log(weatherData);
+            this.post = weatherData;
         })
     }
   }
