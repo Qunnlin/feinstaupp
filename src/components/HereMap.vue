@@ -42,14 +42,16 @@
             var mapEvents = new H.mapevents.MapEvents(this.map);
             var behavior = new H.mapevents.Behavior(mapEvents);
             var weatherData = this.fetchWeatherData(); 
-            weatherData.then()
+            weatherData.then( data => {
+                console.log(data);
+            })
 
         },
 
         methods: {
             async fetchWeatherData () {
                 try {
-                    var response = await fetch("https://weather.ls.hereapi.com/weather/1.0/report.json?product=observation&name=Stuttgart&apiKey=HRr7RNCsyzEchpHLkXO0MGpUOT1JUrSF54BIfHC2duY", {credentials: 'cross-origin'});
+                    var response = await fetch("https://weather.ls.hereapi.com/weather/1.0/report.json?product=observation&name=Stuttgart&apiKey=HRr7RNCsyzEchpHLkXO0MGpUOT1JUrSF54BIfHC2duY");
                     response = response.json();
                     return response;
                 } catch(err) {
