@@ -11,12 +11,10 @@
 
 <script>
     import HereMap from "./components/HereMap.vue"
-    import DataCrawler from "./components/DataCrawler.vue"
     export default {
         name: 'app',
         components: {
-            HereMap,
-            DataCrawler
+            HereMap
         }
     }
 </script>
