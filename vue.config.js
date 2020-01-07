@@ -1,4 +1,6 @@
 module.exports = {
-  lintOnSave: false
-  
+  lintOnSave: false,
+  devServer: {
+    proxy: 'https://developer.here.com/',
+  }
 }

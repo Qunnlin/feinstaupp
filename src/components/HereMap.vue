@@ -34,31 +34,61 @@
                 this.defaultLayers.vector.normal.map,
                 {
                     zoom: 13,
-                    center: { lng: this.lng, lat: this.lat }
+                    center: { lng: this.lng, lat: this.lat },
+                    pixelRatio: window.devicePixelRatio || 1
+
                 }
             );
             this.map.addLayer(this.defaultLayers.vector.normal.traffic);
-            var ui = H.ui.UI.createDefault(this.map, this.defaultLayers);
             var mapEvents = new H.mapevents.MapEvents(this.map);
             var behavior = new H.mapevents.Behavior(mapEvents);
-            var weatherData = this.fetchWeatherData(); 
-            weatherData.then( data => {
-                console.log(data);
+
+            var ui = H.ui.UI.createDefault(this.map, this.defaultLayers, 'de-DE');
+
+            // var weatherData = this.fetchData("https://weather.ls.hereapi.com/weather/1.0/report.json?product=observation&name=Stuttgart&apiKey=HRr7RNCsyzEchpHLkXO0MGpUOT1JUrSF54BIfHC2duY");
+            // weatherData.then( data => {
+            //     console.log(data);
+            //     data.observations.location.forEach( location => {
+            //         console.log(location);
+            //         var marker = new H.map.Marker(
+            //             {
+            //                 lat: location.latitude,
+            //                 lng: location.longitude
+            //             }
+            //         )
+            //         this.map.addObject(marker);
+
+            //     })
+            // });
+            var feinstaubData = this.fetchData("https://data.sensor.community/airrohr/v1/filter/area=48.7758459,9.1829321,10");
+                feinstaubData.then(data => {
+                    console.log(data);
+                    data.forEach(sensor => {
+                    var marker = new H.map.Marker(
+                        {
+                            lat: sensor.location.latitude,
+                            lng: sensor.location.longitude,
+                            alt: sensor.location.altitude
+                        }
+                    )
+                    this.map.addObject(marker);
+                    })
             })
+
 
         },
 
         methods: {
-            async fetchWeatherData () {
+
+            async fetchData(url) {
                 try {
-                    var response = await fetch("https://weather.ls.hereapi.com/weather/1.0/report.json?product=observation&name=Stuttgart&apiKey=HRr7RNCsyzEchpHLkXO0MGpUOT1JUrSF54BIfHC2duY");
+                    var response = await fetch(url);
                     response = response.json();
                     return response;
                 } catch(err) {
                     alert(err);
                 }
-
-            }
+}
         }
     }
 </script>
