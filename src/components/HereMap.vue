@@ -57,9 +57,9 @@
             //             }
             //         )
             //         this.map.addObject(marker);
-
             //     })
             // });
+            this.overlayWeather(this.map, "temp_new", this.lat, this.lng);
             var feinstaubData = this.fetchData("https://data.sensor.community/airrohr/v1/filter/area=48.7758459,9.1829321,10");
                 feinstaubData.then(data => {
                     console.log(data);
@@ -88,7 +88,38 @@
                 } catch(err) {
                     alert(err);
                 }
-}
+            },
+            overlayWeather(map, layer, lat, lng) {
+                // Create a tile provider from our images of historical Berlin
+                var tileProvider = new H.map.provider.ImageTileProvider({
+                    // We have tiles only for zoom levels 12â€“15,
+                    // so on all other zoom levels only base map will be visible
+                    zoom: 15,
+                    opacity: 0.5,
+                    getURL: function (column, row, zoom) {
+                        // If Berlin is not displayed, return a blank tile.
+                     return "https://tile.openweathermap.org/map/"+layer+"/"+lat+"/"+lng+"/"+zoom+".png?appid=9ed58223d2e011bd45529508e9b9d8b6";
+
+                    }
+                });
+
+                tileProvider.getCopyrights = function (bounds, level) {
+                    // We should return an array of objects that implement H.map.ICopyright interface
+                    return [{
+                    label: "Overlay derived from OpenWeatherMaps",
+                    alt: 'Overlay Based on OpenWeatherMaps'
+                    }];
+                };
+                // Now let's create a layer that will consume tiles from our provider
+                var overlayLayer = new H.map.layer.TileLayer(tileProvider, {
+                    // Let's make it semi-transparent
+                    opacity: 0.5
+                });
+
+                map.addLayer(overlayLayer);
+
+            }
+            
         }
     }
 </script>
