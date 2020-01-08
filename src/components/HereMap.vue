@@ -45,7 +45,7 @@
 
             var ui = H.ui.UI.createDefault(this.map, this.defaultLayers, 'de-DE');
 
-            // var weatherData = this.fetchData("https://weather.ls.hereapi.com/weather/1.0/report.json?product=observation&name=Stuttgart&apiKey=HRr7RNCsyzEchpHLkXO0MGpUOT1JUrSF54BIfHC2duY");
+            // var weatherData = this.fetchJSON("https://weather.ls.hereapi.com/weather/1.0/report.json?product=observation&name=Stuttgart&apiKey=HRr7RNCsyzEchpHLkXO0MGpUOT1JUrSF54BIfHC2duY");
             // weatherData.then( data => {
             //     console.log(data);
             //     data.observations.location.forEach( location => {
@@ -59,20 +59,21 @@
             //         this.map.addObject(marker);
             //     })
             // });
-            this.overlayWeather(this.map, "temp_new", this.lat, this.lng);
-            var feinstaubData = this.fetchData("https://data.sensor.community/airrohr/v1/filter/area=48.7758459,9.1829321,10");
-                feinstaubData.then(data => {
-                    console.log(data);
-                    data.forEach(sensor => {
-                    var marker = new H.map.Marker(
-                        {
-                            lat: sensor.location.latitude,
-                            lng: sensor.location.longitude,
-                            alt: sensor.location.altitude
-                        }
-                    )
-                    this.map.addObject(marker);
-                    })
+            // this.overlayWeather(this.map, "temp_new", this.lat, this.lng);
+
+            var tempData = this.fetchData("https://tile.openweathermap.org/map/temp_new/"+this.lat+"/"+this.lng+"/13.png?appid=9ed58223d2e011bd45529508e9b9d8b6");
+            var feinstaubData = this.fetchJSON("https://data.sensor.community/airrohr/v1/filter/area=48.7758459,9.1829321,10");
+            feinstaubData.then(data => {
+                data.forEach(sensor => {
+                var marker = new H.map.Marker(
+                    {
+                        lat: sensor.location.latitude,
+                        lng: sensor.location.longitude,
+                        alt: sensor.location.altitude
+                    }
+                )
+                this.map.addObject(marker);
+                })
             })
 
 
@@ -80,10 +81,19 @@
 
         methods: {
 
+            async fetchJSON(url) {
+                try {
+                    var response = await fetch(url);
+                    return response.json();
+                } catch(err) {
+                    alert(err);
+                }
+            },
+
             async fetchData(url) {
                 try {
                     var response = await fetch(url);
-                    response = response.json();
+                    console.log(response);
                     return response;
                 } catch(err) {
                     alert(err);
@@ -95,7 +105,7 @@
                     // We have tiles only for zoom levels 12â€“15,
                     // so on all other zoom levels only base map will be visible
                     zoom: 15,
-                    opacity: 0.5,
+                    opacity: 1,
                     getURL: function (column, row, zoom) {
                         // If Berlin is not displayed, return a blank tile.
                      return "https://tile.openweathermap.org/map/"+layer+"/"+lat+"/"+lng+"/"+zoom+".png?appid=9ed58223d2e011bd45529508e9b9d8b6";
