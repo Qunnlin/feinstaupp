@@ -5,8 +5,8 @@
             lat="48.7758459"
             lng="9.1829321"
             width="100%"
-            height="900px" /> -->
-        <!-- <Leaflet
+            height="900px" />
+        <Leaflet
             lat="48.7758459"
             lng="9.1829321"
             width="100%"

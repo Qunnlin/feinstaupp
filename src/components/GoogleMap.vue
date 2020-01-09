@@ -15,8 +15,6 @@ import {MapElementMixin} from 'vue2-google-maps'
         name: "GoogleMap",
         data: function () { 
             return {
-                // default to Montreal to keep it simple
-                // change this to whatever makes sense
                 center: { lat: 48.7758459, lng: 9.1829321 },
                 markers: [],
                 places: [],
@@ -33,17 +31,48 @@ import {MapElementMixin} from 'vue2-google-maps'
                 let trafficLayer = new google.maps.TrafficLayer;
                 trafficLayer.setMap(map);
 
-                var myMapType = new google.maps.ImageMapType({
-                    getTileUrl: function(coord, zoom) {
-                        return "https://tile.openweathermap.org/map/clouds_new/5/48.7758459/9.1829321.png?appid=9ed58223d2e011bd45529508e9b9d8b6";
-                    },
-                    tileSize: new google.maps.Size(256, 256),
-                    maxZoom: 9,
-                    minZoom: 0,
-                    name: 'mymaptype'
+
+                let weatherData = this.fetchJSON("http://api.openweathermap.org/data/2.5/find?lat=48.7758459&lon=9.1829321&cnt=15&appid=9ed58223d2e011bd45529508e9b9d8b6");
+                weatherData.then( data => {
+                    for(var sensor of data.list){
+                        var marker = new google.maps.Marker({
+                            position: {lat: sensor.coord.lat, lng: sensor.coord.lon} ,
+                            map: map,
+                            title: sensor.name
+                        });
+                    }
                 });
 
-                //map.overlayMapTypes.insertAt(0, myMapType);
+
+                var currentSensorData = this.fetchJSON("https://data.sensor.community/airrohr/v1/filter/area=48.7758459,9.1829321,10");
+                currentSensorData.then(data => {
+                    var heatMapData = [];
+                    data.forEach(sensor => {
+                        // console.log("{+lat:"+ parseInt(sensor.location.latitude) + ", lng:" + parseInt(sensor.location.longitude)+"}");
+                        let dataPoint = {};
+                        dataPoint.location = new google.maps.LatLng(parseFloat(sensor.location.latitude), parseFloat(sensor.location.longitude));
+                        dataPoint.weight = Math.random();
+                        heatMapData.push(dataPoint);
+
+                    });
+                    var heatmap = new google.maps.visualization.HeatmapLayer({
+                        data: heatMapData
+                    });
+                    heatmap.set("radius", heatmap.get("radius") ? null : 40);
+                    heatmap.setMap(map);    
+                });
+
+                // var myMapType = new google.maps.ImageMapType({
+                //     getTileUrl: function(coord, zoom) {
+                //         return "https://tile.openweathermap.org/map/clouds_new/5/48.7758459/9.1829321.png?appid=c6a3ae840aa6d20d4b2bb8985779af1e";
+                //     },
+                //     tileSize: new google.maps.Size(256, 256),
+                //     maxZoom: 9,
+                //     minZoom: 0,
+                //     name: 'mymaptype'
+                // });
+
+                // map.overlayMapTypes.insertAt(0, myMapType);
 
 
             }); 
