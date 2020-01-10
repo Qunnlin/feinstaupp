@@ -36,21 +36,19 @@ import {MapElementMixin} from 'vue2-google-maps'
 
                 };
 
-                
-
-                map.setOptions({
-                    minZoom: 10,
-                    restriction: {
-                        latLngBounds: mapBounds
-                    }
-                });
+                // map.setOptions({
+                //     minZoom: 10,
+                //     restriction: {
+                //         latLngBounds: mapBounds
+                //     }
+                // });
 
                 let trafficLayer = new google.maps.TrafficLayer;
                 trafficLayer.setMap(map);
 
                 let weatherData = this.fetchJSON("http://api.openweathermap.org/data/2.5/find?lat=48.7758459&lon=9.1829321&cnt=50&units=metric&appid=9ed58223d2e011bd45529508e9b9d8b6");
                 weatherData.then( data => {
-                    console.log(data)
+                    console.log(data);
                     for(var sensor of data.list){
                         let weatherConditionInfo = 
                             '<div id=weatherBox>'+
@@ -65,39 +63,42 @@ import {MapElementMixin} from 'vue2-google-maps'
                             content: weatherConditionInfo});
 
                         let windArrow = {
-                            path: google.maps.SymbolPath.FORWARD_CLOSED_ARROW
+                            path: google.maps.SymbolPath.FORWARD_OPEN_ARROW,
+                            strokeColor: '#141414'
                         };
 
                         let lineFactor = this.calcLengthFactor(sensor.wind.speed);
                         let endpoint = this.rotation(sensor.coord.lon, sensor.coord.lat+lineFactor, sensor.coord, sensor.wind.deg);
-
                         let windLine = new google.maps.Polyline({
                             path: [{lat: sensor.coord.lat, lng: sensor.coord.lon}, endpoint],
                             icons: [{
                                 icon: windArrow,
                                 offset: '100%'
                             }],
+                            strokeColor: '#141414',
+                            strokeWeight: 3,
+                            strokeOpacity: 1,
                             map: map
+        
                         });
 
+                        //this.animateWindLine(windLine, lineFactor);
                         let marker = new google.maps.Marker({
                             position: {lat: sensor.coord.lat, lng: sensor.coord.lon} ,
                             icon: "http://openweathermap.org/img/w/" + sensor.weather[0].icon + ".png",
                             map: map,
                             title: sensor.name
                         });
+                        var opened = false;
                         marker.addListener('click', function() {
-                            infoWindow.open(map, marker);
-                            let stationCircle = new google.maps.Circle({
-                                strokeColor: '#000000',
-                                strokeOpacity: 1,
-                                strokeWeight: 2,
-                                fillColor: '#000000',
-                                fillOpacity: 1,
-                                map: map,
-                                center: {lat: sensor.coord.lat, lng: sensor.coord.lon},
-                                radius: 100
-                            });
+                            if(opened){
+                                infoWindow.close()
+                                opened = false;
+                            } else {
+                                infoWindow.open(map, marker);
+                                opened = true;
+
+                            }
                         });
                     }
                 });
@@ -201,10 +202,24 @@ import {MapElementMixin} from 'vue2-google-maps'
 
             rotation(x, y, p, deg){
                 let rad = deg * Math.PI / 180;
-                var newx = Math.cos(rad) * (x-p.lon) - Math.sin(rad) * (y-p.lat) + x;
-                var newy = Math.sin(rad) * (x-p.lon) + Math.cos(rad) * (y-p.lat) + y;
 
-                return {lat: newy, lng:  newx}
+                let s = Math.sin(rad);
+                let c = Math.cos(rad);
+
+                // translate point back to origin:
+                x -= p.lon;
+                y -= p.lat;
+
+                // rotate point
+                let xnew = x * c - y * s;
+                let ynew = x * s - y * c;
+
+                // translate point back:
+                x = xnew + p.lon;
+                y = ynew + p.lat;
+
+
+                return {lat: y, lng:  x}
 
             },
 
@@ -216,6 +231,18 @@ import {MapElementMixin} from 'vue2-google-maps'
 
                 return maxFactor*normSpeed;
 
+            },
+
+            animateWindLine(line, factor) {
+                var count = 0;
+                console.log(200*factor);
+                window.setInterval(function() {
+                    count = (count + 1) % 200;
+
+                    var icons = line.get('icons');
+                    icons[0].offset = (count / 2) + '%';
+                    line.set('icons', icons);
+                }, 200*factor);
             }
             
         }
