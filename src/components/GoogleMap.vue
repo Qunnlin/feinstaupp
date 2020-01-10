@@ -38,17 +38,17 @@ import {MapElementMixin} from 'vue2-google-maps'
 
                 
 
-                // map.setOptions({
-                //     minZoom: 14,
-                //     restriction: {
-                //         latLngBounds: mapBounds
-                //     }
-                // });
+                map.setOptions({
+                    minZoom: 10,
+                    restriction: {
+                        latLngBounds: mapBounds
+                    }
+                });
 
                 let trafficLayer = new google.maps.TrafficLayer;
                 trafficLayer.setMap(map);
 
-                let weatherData = this.fetchJSON("http://api.openweathermap.org/data/2.5/find?lat=48.7758459&lon=9.1829321&cnt=15&units=metric&appid=9ed58223d2e011bd45529508e9b9d8b6");
+                let weatherData = this.fetchJSON("http://api.openweathermap.org/data/2.5/find?lat=48.7758459&lon=9.1829321&cnt=50&units=metric&appid=9ed58223d2e011bd45529508e9b9d8b6");
                 weatherData.then( data => {
                     console.log(data)
                     for(var sensor of data.list){
@@ -57,10 +57,28 @@ import {MapElementMixin} from 'vue2-google-maps'
                             '<h3>'+sensor.name+'</h3>' +
                             '<p>Temperatur: ' + sensor.main.temp + ' C°</p>' +
                             '<p>Gefühlt: ' + sensor.main.feels_like + ' C°</p>' +
-                            '<p>Lufdruck: ' + sensor.main.feels_like + ' hPa</p>' +
-                            '<p>Feuchtigkeit: ' + sensor.main.feels_like + '%</p>'+
+                            '<p>Lufdruck: ' + sensor.main.pressure + ' hPa</p>' +
+                            '<p>Luftfeuchtigkeit: ' + sensor.main.humidity + '%</p>' +
+                            '<b>Windgeschwindigkeit: ' + sensor.wind.speed + ' km/h</b>' +
                             '</div>';
-                        let infoWindow = new google.maps.InfoWindow({ content: weatherConditionInfo});
+                        let infoWindow = new google.maps.InfoWindow({ 
+                            content: weatherConditionInfo});
+
+                        let windArrow = {
+                            path: google.maps.SymbolPath.FORWARD_CLOSED_ARROW
+                        };
+
+                        let lineFactor = this.calcLengthFactor(sensor.wind.speed);
+                        let endpoint = this.rotation(sensor.coord.lon, sensor.coord.lat+lineFactor, sensor.coord, sensor.wind.deg);
+
+                        let windLine = new google.maps.Polyline({
+                            path: [{lat: sensor.coord.lat, lng: sensor.coord.lon}, endpoint],
+                            icons: [{
+                                icon: windArrow,
+                                offset: '100%'
+                            }],
+                            map: map
+                        });
 
                         let marker = new google.maps.Marker({
                             position: {lat: sensor.coord.lat, lng: sensor.coord.lon} ,
@@ -179,6 +197,25 @@ import {MapElementMixin} from 'vue2-google-maps'
                     }
                 }
                 return grid;
+            },
+
+            rotation(x, y, p, deg){
+                let rad = deg * Math.PI / 180;
+                var newx = Math.cos(rad) * (x-p.lon) - Math.sin(rad) * (y-p.lat) + x;
+                var newy = Math.sin(rad) * (x-p.lon) + Math.cos(rad) * (y-p.lat) + y;
+
+                return {lat: newy, lng:  newx}
+
+            },
+
+            calcLengthFactor(windspeed){
+                let maxFactor = 0.02;
+                let minSpeed = 0;
+                let maxSpeed = 15;
+                let normSpeed = (windspeed - minSpeed)/(maxSpeed-minSpeed);
+
+                return maxFactor*normSpeed;
+
             }
             
         }
