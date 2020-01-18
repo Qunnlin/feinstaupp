@@ -53,7 +53,7 @@ import {MapElementMixin} from 'vue2-google-maps'
                 controlDiv.index = 1;
                 map.controls[google.maps.ControlPosition.TOP_CENTER].push(controlDiv);
 
-                var test = this.getGrid2(mapBounds, 500);
+                var test = this.getGrid2(mapBounds, 100);
                 test.forEach(cell => {
                     var rectangle = new google.maps.Rectangle({
                         strokeColor: '#FF0000',
