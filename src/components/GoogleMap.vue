@@ -116,21 +116,18 @@ import {MapElementMixin} from 'vue2-google-maps'
                     }
                 });
 
-                // calculate timestamps for the last 24 Hours
-                let lastDay = this.getlast24H();
-                lastDay.forEach(hour => {
-                    console.log(new Date(hour));
-                })
+
 
                 // fetch current (<5 min) air data
-                var currentSensorData = this.fetchJSON("https://data.sensor.community/airrohr/v1/filter/area=48.7758459,9.1829321,7");
+                var currentSensorData = this.fetchJSON("https://data.sensor.community/airrohr/v1/filter/box="+ mapBounds.north + "," + mapBounds.east + "," + mapBounds.south + "," + mapBounds.west);
                 currentSensorData.then(data => {
 
                     // sort air data after value_types (temperature, pressure, P1/P2 pollution)
+                    //var sensorIds = this.extractSensorIds(data);
                     var sortedData = this.sortSensorData(data);
 
                     console.log(sortedData);
-                    sortedData["P0"].forEach(sensor => {
+                    sortedData["P1"].forEach(sensor => {
 
                         // create marker for each sensor
                         let marker = new google.maps.Marker({
@@ -140,17 +137,17 @@ import {MapElementMixin} from 'vue2-google-maps'
                         });
 
                         // create pop up window
-                        // let sensorInformation = '<div id=sensorBox>'+
-                        //     '<h3>'+ sensor.sensor_type.manufacturer + ", " + sensor-sensor_type.name +'</h3>' +
-                        //     '<p>Temperatur: ' + sensor.main.temp + ' C°</p>' +
-                        //     '<p>Gefühlt: ' + sensor.main.feels_like + ' C°</p>' +
-                        //     '<p>Lufdruck: ' + sensor.main.pressure + ' hPa</p>' +
-                        //     '<p>Luftfeuchtigkeit: ' + sensor.main.humidity + '%</p>' +
-                        //     '<b>Windgeschwindigkeit: ' + sensor.wind.speed + ' km/h</b>' +
-                        //     '</div>';
+                        let sensorInformation = '<div id=sensorBox>'+
+                            '<h3>'+ sensor.sensor.sensor_type.manufacturer + ", " + sensor.sensor.sensor_type.name +'</h3>' +
+                            // '<p>Temperatur: ' + sensor.main.temp + ' C°</p>' +
+                            // '<p>Gefühlt: ' + sensor.main.feels_like + ' C°</p>' +
+                            // '<p>Lufdruck: ' + sensor.main.pressure + ' hPa</p>' +
+                            // '<p>Luftfeuchtigkeit: ' + sensor.main.humidity + '%</p>' +
+                            // '<b>Windgeschwindigkeit: ' + sensor.wind.speed + ' km/h</b>' +
+                            '</div>';
 
                         let infoWindow = new google.maps.InfoWindow({ 
-                            content: sensor.sensordatavalues[0].value});
+                            content: sensorInformation});
 
                         // add functionality
                         var opened = false;
@@ -172,7 +169,7 @@ import {MapElementMixin} from 'vue2-google-maps'
                 // add weather overlay from openweathermaps
                 var myMapType = new google.maps.ImageMapType({
                     getTileUrl: function(coord, zoom) {
-                        return "https://tile.openweathermap.org/map/temp_new/"+ zoom + "/" + coord.x + "/"+ coord.y + ".png?appid=c6a3ae840aa6d20d4b2bb8985779af1e";
+                        return "https://tile.openweathermap.org/map/wind_new/"+ zoom + "/" + coord.x + "/"+ coord.y + ".png?appid=c6a3ae840aa6d20d4b2bb8985779af1e";
                     },
                     tileSize: new google.maps.Size(256, 256),
                     maxZoom: 9,
@@ -235,24 +232,7 @@ import {MapElementMixin} from 'vue2-google-maps'
                 return sortedData;
             },
 
-            // get hourly timestamps for last 24 hours
-            getlast24H(){
-                let lastDay =[];
-                var date = new Date();
-                let miliHour = 60*60*1000;
-                var currentTime = date.getTime();
-                let lastFullHour =  date.getTime() - date.getMinutes()*60*1000 - date.getSeconds()*1000 - date.getMilliseconds()
 
-                lastDay.push(currentTime);
-                lastDay.push(lastFullHour);
-
-                for(let i = 1; i < 24; i++){
-
-                    lastDay.push(lastFullHour-(miliHour*i));
-                }
-                return lastDay;
-            },
-            
             // calculate distance in m between two lat/lng points
             meterLength(point1, point2){
                 var R = 6378.137; // Radius of earth in KM
@@ -340,18 +320,6 @@ import {MapElementMixin} from 'vue2-google-maps'
                     icons[0].offset = (count / 2) + '%';
                     line.set('icons', icons);
                 }, 200*factor);
-            },
-
-            // save fetched weather data to path ( not working )
-            saveWeatherData(data){
-                    var fs = require('browserify-fs');
-                    let filename = "/public/weather_data/weather_"+Date.now()+".json";
-                    console.log(filename);
-                    fs.writeFile(filename, data, function(err) {
-                        if (err) {
-                            console.log(err);
-                        }
-                    });
             },
             
         }
