@@ -6,7 +6,7 @@ Vue.config.productionTip = false
 
 Vue.use(VueGoogleMaps, {
   load: {
-    key: "",
+    key: "AIzaSyD4CCrsS2gILDTdDyiU8vjZikp1UCxpxTM",
     libraries: ["visualization"] // necessary for places input
   }
 });

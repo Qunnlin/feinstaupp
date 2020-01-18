@@ -26,7 +26,6 @@ import {MapElementMixin} from 'vue2-google-maps'
 
         },
         mounted: function () {
-
             this.$refs.mapRef.$mapPromise.then((map) => {
                 let mapBounds = {
                     north: 48.805000229,
@@ -36,19 +35,17 @@ import {MapElementMixin} from 'vue2-google-maps'
 
                 };
 
-                // map.setOptions({
-                //     minZoom: 10,
-                //     restriction: {
-                //         latLngBounds: mapBounds
-                //     }
-                // });
+                map.setOptions({
+                    minZoom: 10,
+                    restriction: {
+                        latLngBounds: mapBounds
+                    }
+                });
 
                 let trafficLayer = new google.maps.TrafficLayer;
                 trafficLayer.setMap(map);
-
-                let weatherData = this.fetchJSON("http://api.openweathermap.org/data/2.5/find?lat=48.7758459&lon=9.1829321&cnt=50&units=metric&appid=9ed58223d2e011bd45529508e9b9d8b6");
+                let weatherData = this.fetchJSON("http://api.openweathermap.org/data/2.5/find?lat=48.7758459&lon=9.1829321&cnt=15&units=metric&appid=9ed58223d2e011bd45529508e9b9d8b6");
                 weatherData.then( data => {
-                    console.log(data);
                     for(var sensor of data.list){
                         let weatherConditionInfo = 
                             '<div id=weatherBox>'+
@@ -67,22 +64,23 @@ import {MapElementMixin} from 'vue2-google-maps'
                             strokeColor: '#141414'
                         };
 
-                        let lineFactor = this.calcLengthFactor(sensor.wind.speed);
-                        let endpoint = this.rotation(sensor.coord.lon, sensor.coord.lat+lineFactor, sensor.coord, sensor.wind.deg);
-                        let windLine = new google.maps.Polyline({
-                            path: [{lat: sensor.coord.lat, lng: sensor.coord.lon}, endpoint],
-                            icons: [{
-                                icon: windArrow,
-                                offset: '100%'
-                            }],
-                            strokeColor: '#141414',
-                            strokeWeight: 3,
-                            strokeOpacity: 1,
-                            map: map
-        
-                        });
+                        if(sensor.wind.deg){
+                            let lineFactor = this.calcLengthFactor(sensor.wind.speed);
+                            let endpoint = this.rotation(sensor.coord.lon, sensor.coord.lat+lineFactor, sensor.coord, sensor.wind.deg);
+                            let windLine = new google.maps.Polyline({
+                                path: [{lat: sensor.coord.lat, lng: sensor.coord.lon}, endpoint],
+                                icons: [{
+                                    icon: windArrow,
+                                    offset: '100%'
+                                }],
+                                strokeColor: '#141414',
+                                strokeWeight: 3,
+                                strokeOpacity: 1,
+                                map: map
+                            });
+                            //this.animateWindLine(windLine, lineFactor);
+                        };
 
-                        //this.animateWindLine(windLine, lineFactor);
                         let marker = new google.maps.Marker({
                             position: {lat: sensor.coord.lat, lng: sensor.coord.lon} ,
                             icon: "http://openweathermap.org/img/w/" + sensor.weather[0].icon + ".png",
@@ -107,8 +105,20 @@ import {MapElementMixin} from 'vue2-google-maps'
                 var currentSensorData = this.fetchJSON("https://data.sensor.community/airrohr/v1/filter/area=48.7758459,9.1829321,10");
                 currentSensorData.then(data => {
                     console.log(data);
+                    // var markers = data.map(function(sensor){
+                    //     return new google.maps.Marker({
+                    //         position: {lat: parseInt(sensor.location.latitude), lng: parseInt(sensor.location.longitude)},
+                    //         label: sensor.name,
+                    //     });
+                    // })
                     data.forEach(sensor => {
-                        // console.log("{+lat:"+ parseInt(sensor.location.latitude) + ", lng:" + parseInt(sensor.location.longitude)+"}");
+                        console.log(parseFloat(sensor.location.latitude), parseFloat(sensor.location.longitude));
+                        let marker = new google.maps.Marker({
+                            position:{lat: parseFloat(sensor.location.latitude), lng: parseFloat(sensor.location.longitude)},
+                            map: map,
+                            title: sensor.name
+                        });
+                        console.log(marker.position);
 
                     });
   
@@ -201,6 +211,7 @@ import {MapElementMixin} from 'vue2-google-maps'
             },
 
             rotation(x, y, p, deg){
+
                 let rad = deg * Math.PI / 180;
 
                 let s = Math.sin(rad);
@@ -213,11 +224,10 @@ import {MapElementMixin} from 'vue2-google-maps'
                 // rotate point
                 let xnew = x * c - y * s;
                 let ynew = x * s - y * c;
-
+                
                 // translate point back:
                 x = xnew + p.lon;
                 y = ynew + p.lat;
-
 
                 return {lat: y, lng:  x}
 
@@ -235,7 +245,6 @@ import {MapElementMixin} from 'vue2-google-maps'
 
             animateWindLine(line, factor) {
                 var count = 0;
-                console.log(200*factor);
                 window.setInterval(function() {
                     count = (count + 1) % 200;
 
@@ -243,7 +252,18 @@ import {MapElementMixin} from 'vue2-google-maps'
                     icons[0].offset = (count / 2) + '%';
                     line.set('icons', icons);
                 }, 200*factor);
-            }
+            },
+
+            saveWeatherData(data){
+                    var fs = require('browserify-fs');
+                    let filename = "/public/weather_data/weather_"+Date.now()+".json";
+                    console.log(filename);
+                    fs.writeFile(filename, data, function(err) {
+                        if (err) {
+                            console.log(err);
+                        }
+                    });
+            },
             
         }
     }
