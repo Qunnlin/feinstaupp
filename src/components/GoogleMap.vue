@@ -1,4 +1,5 @@
 <template>
+
     <div class="google-map">
         <gmap-map ref="mapRef"
         :center="center"
@@ -31,7 +32,7 @@ import {MapElementMixin} from 'vue2-google-maps'
                 // set Map Boundaries
                 let mapBounds = {
                     north: 48.815000229,
-                    south: 48.755,
+                    south: 48.73,
                     west: 9.10,
                     east: 9.270019239
 
@@ -40,13 +41,19 @@ import {MapElementMixin} from 'vue2-google-maps'
 
                 // set Map Options and Zoom
                 map.setOptions({
-                    minZoom: 14,
+                    minZoom: 13,
                     restriction: {
                         latLngBounds: mapBounds
                     }
                 });
 
-                var test = this.getGrid2(mapBounds, 400);
+                var controlDiv = document.createElement('div');
+                var customControl = new this.initCustomControls(controlDiv, map);
+                
+                controlDiv.index = 1;
+                map.controls[google.maps.ControlPosition.TOP_CENTER].push(controlDiv);
+
+                var test = this.getGrid2(mapBounds, 500);
                 test.forEach(cell => {
                     var rectangle = new google.maps.Rectangle({
                         strokeColor: '#FF0000',
@@ -146,8 +153,8 @@ import {MapElementMixin} from 'vue2-google-maps'
                     //var sensorIds = this.extractSensorIds(data);
                     var sortedData = this.sortSensorData(data);
                     console.log(sortedData.P1);
-                    var tiles = this.insertSensors(sortedData["P1"], mapBounds,400)
-                    console.log(tiles);
+                    // var tiles = this.insertSensors(sortedData["P1"], mapBounds,400)
+                    // console.log(tiles);
                     sortedData["P1"].forEach(sensor => {
                         
                         // create marker for each sensor
@@ -375,7 +382,41 @@ import {MapElementMixin} from 'vue2-google-maps'
                 return tiles;
 
             },
-            
+            initCustomControls(controlDiv, map){
+                
+                var menuUI = document.createElement('div');
+                menuUI.title = 'Click to recenter the map';
+
+
+                var controlUI = document.createElement('div');
+                controlUI.style.backgroundColor = '#fff';
+                controlUI.style.border = '2px solid #fff';
+                controlUI.style.borderRadius = '3px';
+                controlUI.style.boxShadow = '0 2px 6px rgba(0,0,0,.3)';
+                controlUI.style.cursor = 'pointer';
+                controlUI.style.marginBottom = '22px';
+                controlUI.style.textAlign = 'center';
+                controlUI.title = 'Click to recenter the map';
+                controlUI.click = controlUI;
+                controlDiv.appendChild(controlUI);
+
+
+                
+                var controlText = document.createElement('div');
+                controlText.style.color = 'rgb(25,25,25)';
+                controlText.style.fontFamily = 'Roboto,Arial,sans-serif';
+                controlText.style.fontSize = '16px';
+                controlText.style.lineHeight = '38px';
+                controlText.style.paddingLeft = '5px';
+                controlText.style.paddingRight = '5px';
+                controlText.innerHTML = 'Center Map';
+                controlUI.appendChild(controlText);
+
+                // Setup the click event listeners: simply set the map to Chicago.
+                controlUI.addEventListener('click', function() {
+                    map.setCenter({ lat: 48.7758459, lng: 9.1829321 });
+                });
+            },
             // rotate point with lng=x, lat=y around point = p with angle = deg
             rotation(x, y, p, deg){
 
