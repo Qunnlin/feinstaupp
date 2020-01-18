@@ -10,6 +10,7 @@
 </template>
 
 <script>
+var Tiles = require('@gwenmohr/sensor-tiles-js');
 import {MapElementMixin} from 'vue2-google-maps'
     export default {
         name: "GoogleMap",
@@ -29,26 +30,27 @@ import {MapElementMixin} from 'vue2-google-maps'
             this.$refs.mapRef.$mapPromise.then((map) => {
                 // set Map Boundaries
                 let mapBounds = {
-                    north: 48.805000229,
+                    north: 48.815000229,
                     south: 48.755,
-                    west: 9.14,
-                    east: 9.230019239
+                    west: 9.10,
+                    east: 9.270019239
 
                 };
  
 
                 // set Map Options and Zoom
-                // map.setOptions({
-                //     minZoom: 10,
-                //     restriction: {
-                //         latLngBounds: mapBounds
-                //     }
-                // });
-                var test = this.getGrid2(mapBounds, 200);
+                map.setOptions({
+                    minZoom: 14,
+                    restriction: {
+                        latLngBounds: mapBounds
+                    }
+                });
+
+                var test = this.getGrid2(mapBounds, 400);
                 test.forEach(cell => {
                     var rectangle = new google.maps.Rectangle({
                         strokeColor: '#FF0000',
-                        strokeOpacity: 0.8,
+                        strokeOpacity: 0.2,
                         strokeWeight: 1,
                         fillColor: '#FF0000',
                         fillOpacity: 0,
@@ -136,53 +138,54 @@ import {MapElementMixin} from 'vue2-google-maps'
 
 
 
-                // // fetch current (<5 min) air data
-                // var currentSensorData = this.fetchJSON("https://data.sensor.community/airrohr/v1/filter/box="+ mapBounds.north + "," + mapBounds.east + "," + mapBounds.south + "," + mapBounds.west);
-                // currentSensorData.then(data => {
+                // fetch current (<5 min) air data
+                var currentSensorData = this.fetchJSON("https://data.sensor.community/airrohr/v1/filter/box="+ mapBounds.north + "," + mapBounds.east + "," + mapBounds.south + "," + mapBounds.west);
+                currentSensorData.then(data => {
 
-                //     // sort air data after value_types (temperature, pressure, P1/P2 pollution)
-                //     //var sensorIds = this.extractSensorIds(data);
-                //     var sortedData = this.sortSensorData(data);
+                    // sort air data after value_types (temperature, pressure, P1/P2 pollution)
+                    //var sensorIds = this.extractSensorIds(data);
+                    var sortedData = this.sortSensorData(data);
+                    console.log(sortedData.P1);
+                    var tiles = this.insertSensors(sortedData["P1"], mapBounds,400)
+                    console.log(tiles);
+                    sortedData["P1"].forEach(sensor => {
+                        
+                        // create marker for each sensor
+                        let marker = new google.maps.Marker({
+                            position:{lat: parseFloat(sensor.location.latitude), lng: parseFloat(sensor.location.longitude)},
+                            map: map,
+                            title: sensor.name
+                        });
 
-                //     console.log(sortedData);
-                //     sortedData["P1"].forEach(sensor => {
+                        // create pop up window
+                        let sensorInformation = '<div id=sensorBox>'+
+                            '<h3>'+ sensor.sensor.sensor_type.manufacturer + ", " + sensor.sensor.sensor_type.name +'</h3>' +
+                            '<p>Messwert: ' + sensor.sensordatavalues.P1 + '</p>' +
+                            // '<p>Gefühlt: ' + sensor.main.feels_like + ' C°</p>' +
+                            // '<p>Lufdruck: ' + sensor.main.pressure + ' hPa</p>' +
+                            // '<p>Luftfeuchtigkeit: ' + sensor.main.humidity + '%</p>' +
+                            // '<b>Windgeschwindigkeit: ' + sensor.wind.speed + ' km/h</b>' +
+                            '</div>';
 
-                //         // create marker for each sensor
-                //         let marker = new google.maps.Marker({
-                //             position:{lat: parseFloat(sensor.location.latitude), lng: parseFloat(sensor.location.longitude)},
-                //             map: map,
-                //             title: sensor.name
-                //         });
+                        let infoWindow = new google.maps.InfoWindow({ 
+                            content: sensorInformation});
 
-                //         // create pop up window
-                //         let sensorInformation = '<div id=sensorBox>'+
-                //             '<h3>'+ sensor.sensor.sensor_type.manufacturer + ", " + sensor.sensor.sensor_type.name +'</h3>' +
-                //             // '<p>Temperatur: ' + sensor.main.temp + ' C°</p>' +
-                //             // '<p>Gefühlt: ' + sensor.main.feels_like + ' C°</p>' +
-                //             // '<p>Lufdruck: ' + sensor.main.pressure + ' hPa</p>' +
-                //             // '<p>Luftfeuchtigkeit: ' + sensor.main.humidity + '%</p>' +
-                //             // '<b>Windgeschwindigkeit: ' + sensor.wind.speed + ' km/h</b>' +
-                //             '</div>';
+                        // add functionality
+                        var opened = false;
+                        marker.addListener('click', function() {
+                            if(opened){
+                                infoWindow.close()
+                                opened = false;
+                            } else {
+                                infoWindow.open(map, marker);
+                                opened = true;
 
-                //         let infoWindow = new google.maps.InfoWindow({ 
-                //             content: sensorInformation});
+                            }
+                        });
 
-                //         // add functionality
-                //         var opened = false;
-                //         marker.addListener('click', function() {
-                //             if(opened){
-                //                 infoWindow.close()
-                //                 opened = false;
-                //             } else {
-                //                 infoWindow.open(map, marker);
-                //                 opened = true;
-
-                //             }
-                //         });
-
-                //     });
+                    });
   
-                // });
+                });
                 
                 // // add weather overlay from openweathermaps
                 // var myMapType = new google.maps.ImageMapType({
@@ -238,12 +241,22 @@ import {MapElementMixin} from 'vue2-google-maps'
             sortSensorData(sensorData){
                 var sortedData = {};
                 sensorData.forEach( sensor => {
+                    var newFormat = {};
+                    newFormat.location = sensor.location;
+                    newFormat.id = sensor.id;
+                    newFormat.sensor = sensor.sensor;
+                    newFormat.timestamp = sensor.timestamp;
+                    newFormat.sensordatavalues = {};
+                    
                     sensor.sensordatavalues.forEach(sensordatavalue => {
                         if(sortedData[sensordatavalue.value_type]){
-                            sortedData[sensordatavalue.value_type].push(sensor);
+                            newFormat.sensordatavalues[sensordatavalue.value_type] = sensordatavalue.value;
+                            sortedData[sensordatavalue.value_type].push(newFormat);
                         } else {
                             sortedData[sensordatavalue.value_type] = []
-                            sortedData[sensordatavalue.value_type].push(sensor);
+                            newFormat.sensordatavalues[sensordatavalue.value_type] = sensordatavalue.value;
+
+                            sortedData[sensordatavalue.value_type].push(newFormat);
                         }
                     });
                 })
@@ -300,7 +313,7 @@ import {MapElementMixin} from 'vue2-google-maps'
                 console.log("" + (p1 + distance_deg) + " should be the same as " + p2);
             },
 
-            // generate grid over map with fixed cell size (not working correctly)
+            // generate grid over map with fixed resolution
             getGrid2(mapBounds, cell_count_width){
                 let nw = {lat: mapBounds.north, lng: mapBounds.west};
                 let ne = {lat: mapBounds.north, lng: mapBounds.east};
@@ -308,17 +321,10 @@ import {MapElementMixin} from 'vue2-google-maps'
                 // let se = {lat: mapBounds.south, lng: mapBounds.east};
                 
                 var grid =[];
+                let cell_width = this.calc_cell_width(mapBounds, cell_count_width)
 
-                console.log("" + ne.lng + "-"  + nw.lng + "=" + (ne.lng - nw.lng))
-                // let cell_width = this.meterLength(nw, ne) / cell_count_width;
-                let cell_width = (ne.lng - nw.lng) / cell_count_width;
-
-                console.log(cell_width);
-                // let cell_count_height = parseInt(this.meterLength(nw, sw) / cell_width);
-                let cell_count_height = parseInt( Math.abs(nw.lat - sw.lat) / cell_width);
-
-                //let cell_height = Math.abs(nw - sw) / cell_count_height;
-                
+                let cell_count_height =  this.calc_cell_count_height(mapBounds, cell_width);
+                console.log("Resolution: " + cell_count_width + "x" + cell_count_height);          
 
                 for(var i = 0; i<= cell_count_width; i+= 1){
                     for(var j = 0; j<=cell_count_height; j+=1){
@@ -328,16 +334,46 @@ import {MapElementMixin} from 'vue2-google-maps'
                             west: mapBounds.west + i*cell_width,
                             east: mapBounds.west + (i+1)*cell_width
                         }
-                        // console.log(this.meterLength({lat: cellBounds.north, lng: cellBounds.west}, {lat: cellBounds.south, lng: cellBounds.east}));
                         grid.push(cellBounds);
                     }
-                    // console.log("cell column: " + i);
-                    
-                    // console.log("from " + (mapBounds.west + this.metersToDeg(i*cell_width)) + " to " + (mapBounds.west + this.metersToDeg((i+1)*cell_width)));
-
 
                 }
+                
+                
+                
+
+
                 return grid;
+            },
+
+            calc_cell_width(mapBounds, cell_count_width) {
+                let cell_width = Math.abs( (mapBounds.east - mapBounds.west) / cell_count_width );
+                return cell_width
+            },
+
+            calc_cell_count_height(mapBounds, cell_width) {
+                return parseInt( Math.abs(mapBounds.north - mapBounds.south) / cell_width);     
+            },
+
+            insertSensors(sensors, mapBounds, cell_count_width){
+                let cell_width = this.calc_cell_width(mapBounds, cell_count_width)
+                let cell_count_height = this.calc_cell_count_height(mapBounds, cell_width);
+                
+                let tiles = Tiles.init(cell_count_width, cell_count_height);
+                console.log(sensors);
+                for( var sensor of sensors){
+                    
+                    console.log(mapBounds.west, sensor.location.longitude);
+                    let x_position =  parseInt((sensor.location.longitude - mapBounds.west) / cell_width)
+                    let y_position =  parseInt((mapBounds.north - sensor.location.latitude ) / cell_width)
+
+                    console.log("indexes" + x_position + "  " +  y_position);
+                    console.log(x_position, y_position, sensor.sensordatavalues.P1, tiles);
+                    tiles = Tiles.insertSensor(x_position, y_position, sensor.sensordatavalues.P1, tiles);
+                };
+
+                return tiles;
+
             },
             
             // rotate point with lng=x, lat=y around point = p with angle = deg

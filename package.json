@@ -9,6 +9,7 @@
   },
   "dependencies": {
     "@google/markerclusterer": "^2.0.6",
+    "@gwenmohr/sensor-tiles-js": "^1.0.0",
     "browserify-fs": "^1.0.0",
     "core-js": "^3.4.3",
     "vue": "^2.6.10",
