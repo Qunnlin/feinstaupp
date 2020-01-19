@@ -52,15 +52,30 @@ import {MapElementMixin} from 'vue2-google-maps'
                 
                 controlDiv.index = 1;
                 map.controls[google.maps.ControlPosition.TOP_CENTER].push(controlDiv);
+                
+                var pollLayer = new google.maps.Data();
+                var test = this.getGrid2(mapBounds, 10);
 
-                var test = this.getGrid2(mapBounds, 100);
+
+                var geojson = this.createGeoJson(test);
+                console.log(geojson);
+                pollLayer.addGeoJson(geojson);
+                pollLayer.setStyle(function(feature) {
+                    return({
+                        fillColor: feature.getProperty("color"),
+                        fillOpacity: 0.4
+                    })
+                })
+                pollLayer.setMap(map);
+
                 test.forEach(cell => {
+
                     var rectangle = new google.maps.Rectangle({
                         strokeColor: '#FF0000',
                         strokeOpacity: 0.2,
-                        strokeWeight: 1,
+                        strokeWeight: 2,
                         fillColor: '#FF0000',
-                        fillOpacity: 0,
+                        fillOpacity: 0.0,
                         map: map,
                         bounds: {
                             north: cell.north,
@@ -69,7 +84,12 @@ import {MapElementMixin} from 'vue2-google-maps'
                             west: cell.west
                         }
                     });
-                })
+                    google.maps.event.addListener(rectangle, 'click', function() {
+                        console.log(cell);
+                    });
+
+                });
+
 
                 // add trafficlayer to map
                 let trafficLayer = new google.maps.TrafficLayer;
@@ -152,6 +172,8 @@ import {MapElementMixin} from 'vue2-google-maps'
                     // sort air data after value_types (temperature, pressure, P1/P2 pollution)
                     //var sensorIds = this.extractSensorIds(data);
                     var sortedData = this.sortSensorData(data);
+                    this.insertSensorsPurescript(sortedData["P1"],mapBounds,10);
+
                     console.log(sortedData.P1);
                     // var tiles = this.insertSensors(sortedData["P1"], mapBounds,400)
                     // console.log(tiles);
@@ -329,10 +351,11 @@ import {MapElementMixin} from 'vue2-google-maps'
                 
                 var grid =[];
                 let cell_width = this.calc_cell_width(mapBounds, cell_count_width)
-
+                console.log(cell_width);
+                
                 let cell_count_height =  this.calc_cell_count_height(mapBounds, cell_width);
-                console.log("Resolution: " + cell_count_width + "x" + cell_count_height);          
-
+                console.log("Resolution: " + cell_count_width + "x" + Math.round(cell_count_height));          
+                
                 for(var i = 0; i<= cell_count_width; i+= 1){
                     for(var j = 0; j<=cell_count_height; j+=1){
                         let cellBounds = {
@@ -359,7 +382,7 @@ import {MapElementMixin} from 'vue2-google-maps'
             },
 
             calc_cell_count_height(mapBounds, cell_width) {
-                return parseInt( Math.abs(mapBounds.north - mapBounds.south) / cell_width);     
+                return Math.round((mapBounds.north - mapBounds.south) / cell_width);     
             },
 
             insertSensors(sensors, mapBounds, cell_count_width){
@@ -382,6 +405,26 @@ import {MapElementMixin} from 'vue2-google-maps'
                 return tiles;
 
             },
+            insertSensorsPurescript(sensors, mapBounds, cell_count_width) {
+                // create sensor objects
+                const ps_sensors = sensors.map((old) => Tiles.createCoordSensor(old.location.latitude, old.location.longitude, old.sensordatavalues.P1));
+
+                //create matrix
+                const ps_mapbounds = Tiles.createMapBounds(mapBounds.north, mapBounds.south, mapBounds.west, mapBounds.east);
+                const ps_matrix = Tiles.initCoordMatrix(ps_mapbounds, cell_count_width);
+
+                console.log(ps_matrix);
+
+                //insert sensors
+                const with_sensors = Tiles.insertManyCoordSensors(ps_sensors, ps_matrix);
+
+                console.log(with_sensors);
+                
+            },
+
+
+
+
             initCustomControls(controlDiv, map){
                 
                 var menuUI = document.createElement('div');
@@ -462,6 +505,48 @@ import {MapElementMixin} from 'vue2-google-maps'
                     icons[0].offset = (count / 2) + '%';
                     line.set('icons', icons);
                 }, 200*factor);
+            },
+
+            createGeoJson(jsonArray){
+                var geojson = {
+                    "name":"NewFeatureType",
+                    "type":"FeatureCollection",
+                    "features":[]
+                };
+
+                jsonArray.forEach( cell => {
+                    var feature = {
+                        "type":"Feature",
+                        "properties": {
+                            "color": this.getRandomColor(),
+                        },
+                        "geometry":{
+                            "type":"Polygon",
+                            "coordinates":[
+                                [
+                                    [cell.north, cell.west],
+                                    [cell.south, cell.west],
+                                    [cell.south, cell.east],
+                                    [cell.north, cell.east],
+                                    [cell.north, cell.west],
+
+                                ]
+                            ]
+                        },
+  
+                    };
+                    geojson.features.push(feature);
+                });
+                return geojson;
+            },
+
+            getRandomColor() {
+                var letters = '0123456789ABCDEF';
+                var color = '#';
+                for (var i = 0; i < 6; i++) {
+                    color += letters[Math.floor(Math.random() * 16)];
+                }
+                return color;
             },
             
         }

@@ -9,17 +9,17 @@
   },
   "dependencies": {
     "@google/markerclusterer": "^2.0.6",
-    "@gwenmohr/sensor-tiles-js": "^1.0.0",
+    "@gwenmohr/sensor-tiles-js": "^1.0.7",
     "browserify-fs": "^1.0.0",
-    "core-js": "^3.4.3",
-    "vue": "^2.6.10",
+    "core-js": "^3.6.4",
+    "vue": "^2.6.11",
     "vue2-google-maps": "^0.10.7"
   },
   "devDependencies": {
-    "@vue/cli-plugin-babel": "^4.1.0",
-    "@vue/cli-plugin-eslint": "^4.1.0",
-    "@vue/cli-service": "^4.1.0",
-    "vue-template-compiler": "^2.6.10"
+    "@vue/cli-plugin-babel": "^4.1.2",
+    "@vue/cli-plugin-eslint": "^4.1.2",
+    "@vue/cli-service": "^4.1.2",
+    "vue-template-compiler": "^2.6.11"
   },
   "eslintConfig": {
     "root": true,
