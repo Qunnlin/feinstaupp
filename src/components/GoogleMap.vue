@@ -37,13 +37,13 @@ import {MapElementMixin} from 'vue2-google-maps'
 
                 };
  
-                // // set Map Options and Zoom
-                // map.setOptions({
-                //     minZoom: 13,
-                //     restriction: {
-                //         latLngBounds: mapBounds
-                //     }
-                // });
+                // set Map Options and Zoom
+                map.setOptions({
+                    minZoom: 14,
+                    restriction: {
+                        latLngBounds: mapBounds
+                    }
+                });
 
                 var grid = this.getGrid2(mapBounds, this.gridWidth);
                 var geojson = this.createGeoJson(grid);
@@ -53,91 +53,49 @@ import {MapElementMixin} from 'vue2-google-maps'
                 let trafficLayer = new google.maps.TrafficLayer;
                 trafficLayer.setMap(map);
 
-                // // fetch weatherData and add Stations to map
-                // let weatherData = this.fetchJSON("http://api.openweathermap.org/data/2.5/find?lat=48.7758459&lon=9.1829321&cnt=15&units=metric&appid=9ed58223d2e011bd45529508e9b9d8b6");
-                // weatherData.then( data => {
-
-                //     for(var sensor of data.list){
-
-                //         // create Infobox for station
-                //         let weatherConditionInfo = 
-                //             '<div id=weatherBox>'+
-                //             '<h3>'+sensor.name+'</h3>' +
-                //             '<p>Temperatur: ' + sensor.main.temp + ' C°</p>' +
-                //             '<p>Gefühlt: ' + sensor.main.feels_like + ' C°</p>' +
-                //             '<p>Lufdruck: ' + sensor.main.pressure + ' hPa</p>' +
-                //             '<p>Luftfeuchtigkeit: ' + sensor.main.humidity + '%</p>' +
-                //             '<b>Windgeschwindigkeit: ' + sensor.wind.speed + ' m/s</b>' +
-                //             '</div>';
-
-                //         let infoWindow = new google.maps.InfoWindow({ 
-                //             content: weatherConditionInfo});
-
-                //         // create arrow indicating wind speed & direction
-                //         let windArrow = {
-                //             path: google.maps.SymbolPath.FORWARD_OPEN_ARROW,
-                //             strokeColor: '#141414'
-                //         };
-
-                //         // calculate wind direction and draw arrow on map
-                //         if(sensor.wind.deg){
-                //             let lineFactor = this.calcLengthFactor(sensor.wind.speed);
-                //             let endpoint = this.rotation(sensor.coord.lon, sensor.coord.lat+lineFactor, sensor.coord, sensor.wind.deg);
-                //             let windLine = new google.maps.Polyline({
-                //                 path: [{lat: sensor.coord.lat, lng: sensor.coord.lon}, endpoint],
-                //                 icons: [{
-                //                     icon: windArrow,
-                //                     offset: '100%'
-                //                 }],
-                //                 strokeColor: '#141414',
-                //                 strokeWeight: 3,
-                //                 strokeOpacity: 1,
-                //                 map: map
-                //             });
-                //             //this.animateWindLine(windLine, lineFactor);
-                //         };
-
-                //         // draw weather station marker on map
-                //         let marker = new google.maps.Marker({
-                //             position: {lat: sensor.coord.lat, lng: sensor.coord.lon} ,
-                //             icon: "http://openweathermap.org/img/w/" + sensor.weather[0].icon + ".png",
-                //             map: map,
-                //             title: sensor.name
-                //         });
-
-                //         // add functionality to station marker
-                //         var opened = false;
-                //         marker.addListener('click', function() {
-                //             if(opened){
-                //                 infoWindow.close()
-                //                 opened = false;
-                //             } else {
-                //                 infoWindow.open(map, marker);
-                //                 opened = true;
-
-                //             }
-                //         });
-                //     }
-                // });
-
-
-
+                this.addWeatherData(map);
                 // fetch current (<5 min) air data
                 var currentSensorData = this.fetchJSON("https://data.sensor.community/airrohr/v1/filter/box="+ mapBounds.north + "," + mapBounds.east + "," + mapBounds.south + "," + mapBounds.west);
                 currentSensorData.then(data => {
 
                     // sort air data after value_types (temperature, pressure, P1/P2 pollution)
                     var sortedData = this.sortSensorData(data);
-                    let interpolated = this.insertSensorsPurescript(sortedData["P1"],mapBounds, this.gridWidth);
-                    geojson = this.mapGrid(geojson, interpolated);
 
-                    let p1layer = this.createLayer(geojson, map);
 
-                    var controlDiv = document.createElement('div');
-                    var customControl = new this.initCustomControls(controlDiv, p1layer, 'P1', map);
-                    controlDiv.index = 1;
-                    map.controls[google.maps.ControlPosition.RIGHT_TOP].push(controlDiv);
+                    // P1 Sensors
+                    let sensorType = "P1";
 
+                    // generate interpolated data & update geoJson
+                    let p1_interpolated = this.insertSensorsPurescript(sortedData[sensorType],mapBounds, this.gridWidth);
+                    let p1_geojson = this.mapGrid(geojson, p1_interpolated);
+
+                    // create Layer
+                    let p1_layer = this.createLayer(p1_geojson, map);
+
+                    // create controls
+                    var p1_controlDiv = document.createElement('div');
+                    var p1_customControl = new this.initCustomControls(p1_controlDiv, p1_layer, sensorType, map);
+                    p1_controlDiv.index = 1;
+                    map.controls[google.maps.ControlPosition.RIGHT_TOP].push(p1_controlDiv);
+                    
+                    // P1 Sensors
+                    sensorType = "P2";
+
+                    // generate interpolated data & update geoJson
+                    let p2_interpolated = this.insertSensorsPurescript(sortedData[sensorType],mapBounds, this.gridWidth);
+                    let p2_geojson = this.mapGrid(geojson, p2_interpolated);
+
+                    // create Layer
+                    let p2_layer = this.createLayer(p2_geojson, map);
+
+                    // create controls
+                    var p2_controlDiv = document.createElement('div');
+                    var p2_customControl = new this.initCustomControls(p2_controlDiv, p2_layer, sensorType, map);
+                    p2_controlDiv.index = 2;
+                    map.controls[google.maps.ControlPosition.RIGHT_TOP].push(p2_controlDiv);
+
+
+//--------------------------------------------------------------------
                     sortedData["P1"].forEach(sensor => {
                         
                         if(sensor.sensordatavalues.P1 > 0){
@@ -232,27 +190,6 @@ import {MapElementMixin} from 'vue2-google-maps'
                     });
                 })
                 return sortedData;
-            },
-
-
-            // calculate distance in m between two lat/lng points
-            meterLength(point1, point2){
-                var R = 6378.137; // Radius of earth in KM
-                var dLat = point2.lat * Math.PI / 180 - point1.lat * Math.PI / 180;
-                var dLon = point2.lng * Math.PI / 180 - point1.lng * Math.PI / 180;
-                var a = Math.sin(dLat/2) * Math.sin(dLat/2) +
-                Math.cos(point1.lat * Math.PI / 180) * Math.cos(point2.lat * Math.PI / 180) *
-                Math.sin(dLon/2) * Math.sin(dLon/2);
-                var c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
-                var d = R * c;
-                return d * 1000; // meters
-            },
-
-
-            metersToDeg(meter){
-                let o = 0.00000898311;
-                return meter * o;
-
             },
 
             // generate grid over map with fixed resolution
@@ -397,7 +334,6 @@ import {MapElementMixin} from 'vue2-google-maps'
                     } else {
                         let tileValue = 0;
                         interpolated[i].values.forEach(value => {
-                            
                             tileValue += value.sensorsValue/(value.weight+1);
                         })
                         // console.log("RAW",tileValue);
@@ -446,6 +382,7 @@ import {MapElementMixin} from 'vue2-google-maps'
                 controlUI.title = 'Click to toggle ' + text + 'Layer';
                 controlDiv.appendChild(controlUI);
 
+                
                 var controlText = document.createElement('div');
                 controlText.style.color = 'rgb(25,25,25)';
                 controlText.style.fontFamily = 'Roboto,Arial,sans-serif';
@@ -471,6 +408,75 @@ import {MapElementMixin} from 'vue2-google-maps'
                         layer.setMap(null);
                     }
                  });
+
+            },
+            addWeatherData(map){
+                // fetch weatherData and add Stations to map
+                let weatherData = this.fetchJSON("http://api.openweathermap.org/data/2.5/find?lat=48.7758459&lon=9.1829321&cnt=15&units=metric&appid=9ed58223d2e011bd45529508e9b9d8b6");
+                weatherData.then( data => {
+
+                    for(var sensor of data.list){
+
+                        // create Infobox for station
+                        let weatherConditionInfo = 
+                            '<div id=weatherBox>'+
+                            '<h3>'+sensor.name+'</h3>' +
+                            '<p>Temperatur: ' + sensor.main.temp + ' C°</p>' +
+                            '<p>Gefühlt: ' + sensor.main.feels_like + ' C°</p>' +
+                            '<p>Lufdruck: ' + sensor.main.pressure + ' hPa</p>' +
+                            '<p>Luftfeuchtigkeit: ' + sensor.main.humidity + '%</p>' +
+                            '<b>Windgeschwindigkeit: ' + sensor.wind.speed + ' m/s</b>' +
+                            '</div>';
+
+                        let infoWindow = new google.maps.InfoWindow({ 
+                            content: weatherConditionInfo});
+
+                        // create arrow indicating wind speed & direction
+                        let windArrow = {
+                            path: google.maps.SymbolPath.FORWARD_OPEN_ARROW,
+                            strokeColor: '#141414'
+                        };
+
+                        // calculate wind direction and draw arrow on map
+                        if(sensor.wind.deg){
+                            let lineFactor = this.calcLengthFactor(sensor.wind.speed);
+                            let endpoint = this.rotation(sensor.coord.lon, sensor.coord.lat+lineFactor, sensor.coord, sensor.wind.deg);
+                            let windLine = new google.maps.Polyline({
+                                path: [{lat: sensor.coord.lat, lng: sensor.coord.lon}, endpoint],
+                                icons: [{
+                                    icon: windArrow,
+                                    offset: '100%'
+                                }],
+                                strokeColor: '#141414',
+                                strokeWeight: 3,
+                                strokeOpacity: 1,
+                                map: map
+                            });
+                            // this.animateWindLine(windLine, lineFactor);
+                        };
+
+                        // draw weather station marker on map
+                        let marker = new google.maps.Marker({
+                            position: {lat: sensor.coord.lat, lng: sensor.coord.lon} ,
+                            icon: "http://openweathermap.org/img/w/" + sensor.weather[0].icon + ".png",
+                            map: map,
+                            title: sensor.name
+                        });
+
+                        // add functionality to station marker
+                        var opened = false;
+                        marker.addListener('click', function() {
+                            if(opened){
+                                infoWindow.close()
+                                opened = false;
+                            } else {
+                                infoWindow.open(map, marker);
+                                opened = true;
+
+                            }
+                        });
+                    }
+                });
             },
             // rotate point with lng=x, lat=y around point = p with angle = deg
             rotation(x, y, p, deg){
@@ -559,7 +565,7 @@ import {MapElementMixin} from 'vue2-google-maps'
                 newLayer.setStyle(function(feature) {
                     return({
                         fillColor: feature.getProperty("color"),
-                        fillOpacity: 1,
+                        fillOpacity: 0.5,
                         strokeWeight: 1,
                         strokeOpacity: 0,
                         visible: true,
@@ -574,16 +580,6 @@ import {MapElementMixin} from 'vue2-google-maps'
                 })
                 return newLayer;
             },
-
-            getRandomColor() {
-                var letters = '0123456789ABCDEF';
-                var color = '#';
-                for (var i = 0; i < 6; i++) {
-                    color += letters[Math.floor(Math.random() * 16)];
-                }
-                return color;
-            },
-            
         }
     }
 </script>
