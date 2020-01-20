@@ -1,12 +1,8 @@
 <template>
-
     <div class="google-map">
         <div id="controls">
-            
-
         </div>
         <div id="legend">
-
         </div>
         <gmap-map ref="mapRef"
         :center="center"
@@ -34,13 +30,9 @@ import {MapElementMixin} from 'vue2-google-maps'
                     "P2": {"min": 0, "max": 25, "metric": "µg/m³"}
                 },
                 sensorTypes: ["P1", "P2", "temperature","pressure", "humidity"],
-                layers: [],
-                markers: []
             }
         },
         created: function () { 
-
-
         },
         mounted: function () {
             this.$refs.mapRef.$mapPromise.then((map) => {
@@ -55,17 +47,18 @@ import {MapElementMixin} from 'vue2-google-maps'
  
                 // set Map Options and Zoom
                 map.setOptions({
-                    minZoom: 13,
+                    minZoom: 12,
                     restriction: {
                         latLngBounds: mapBounds
                     }
                 });
+
+                // initialize controls & legend
                 this.initCustomControls(map);
                 this.initLegend(map);
+
+                // generate grid over map
                 var grid = this.generateGrid(mapBounds, this.gridWidth);
-
-
-                // add trafficlayer to map
 
                 // fetch current (<5 min) air data
                 var currentSensorData = this.fetchJSON("https://data.sensor.community/airrohr/v1/filter/box="+ mapBounds.north + "," + mapBounds.east + "," + mapBounds.south + "," + mapBounds.west);
@@ -96,11 +89,7 @@ import {MapElementMixin} from 'vue2-google-maps'
                 let trafficLayer = new google.maps.TrafficLayer;
                 trafficLayer.setMap(map);
                 this.addWeatherData(map);
-
             }); 
-
-
-
         },
 
         methods: {
@@ -176,9 +165,9 @@ import {MapElementMixin} from 'vue2-google-maps'
                             coord: [i,j]
                             
                         }
+
                         grid.push(cellBounds);
                     }
-
                 }
 
                 return grid;
@@ -211,7 +200,6 @@ import {MapElementMixin} from 'vue2-google-maps'
                 // parse coordMatrix to usable JSON
                 let interpolatedTiles = this.parseCoordMatrix(with_sensors.value0);
                 return interpolatedTiles;
-                    
             },
 
             // parse "Three" Tree from coordMatrix
@@ -224,7 +212,7 @@ import {MapElementMixin} from 'vue2-google-maps'
 
             // parse "Two" Tree from coordMatrix
             handleTwo(tile){
-            var values = [];
+                var values = [];
                 for( let entry in tile){
                     let type = tile[entry].__proto__.constructor.name;
                     
@@ -262,7 +250,6 @@ import {MapElementMixin} from 'vue2-google-maps'
                             }
 
                         case "Interpolated":
-
                             var values = [];
                             let kind2 = tile.value0.__proto__.constructor.name;
                             if(kind2 == "Three"){
@@ -288,7 +275,6 @@ import {MapElementMixin} from 'vue2-google-maps'
 
                 for (let i = 0; i < interpolated.length; i++) {
 
-  
                     if(interpolated[i].kind == "SensorTile"){
 
                         // normalize sensor value based on their threshold
@@ -299,8 +285,6 @@ import {MapElementMixin} from 'vue2-google-maps'
                         features[i].properties["value"] = interpolated[i].values[0].sensorValue;
                         features[i].properties["norm_value"] = normValue;
                     
-
-
                     } else {
                         
                         // calculate inverse distance interpolation and normalize value, get color 
@@ -311,7 +295,6 @@ import {MapElementMixin} from 'vue2-google-maps'
                         features[i].properties["value"] = tileValue;
                         features[i].properties["norm_value"] = normValue;
                     }
-                    
                 }
                 return grid;
             },
