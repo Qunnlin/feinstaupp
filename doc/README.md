@@ -15,16 +15,20 @@ In diesem Dokument soll das Abschlussprojekt **Feinstaupp** von Felix Schick und
 
 ## Ziel des Projekts
 
-Ziel des Projekts ist es eine Webapplikation zu entwickeln, welche *open source* Feinstaub- und Umweltdaten, wie Temperatur, Luftdruck und Verkehrsdichte, visualisiert und eine Analyse über die mögliche Korrelation dieser zulässt.
+Ziel des Projekts ist es eine Webapplikation zu entwickeln, welche *open source* Feinstaub- und Umweltdaten, wie Temperatur, Luftdruck und Verkehrsdichte, auf einer Karten visualisiert und eine Analyse über die mögliche Korrelation dieser zulässt.
 
 ## Vorgehensweise
 
-- Abfrage von passenden Sensoren APIs
+Das Grundgerüst der Anwendung soll mit dem Vue.js Framework erstellt werden.
+Durch sein Komponenten-basiertes Design ist das erstellen von leicht erweiterbaren Anwendungen möglich.
 
-- Interpolation von Gebieten, fuer die keine Sensorendaten vorliegen
+Als erster Meilenstein des Projekts soll mit einer Karten-API eine Karte von Stuttgart angezeigt werden.
+Anschließend sollen die Umwelt- und Feinstaubdaten von APIs abgefragt werden.
+Aus den erhaltenen Daten sollen verschiedenen Layer erstellt werden, die über die Karte gelegt werden können.
+Diese Layer sollen die Stärke der jeweiligen Ausprägung der Daten farblich darstellen.
+Durch das aktivieren von mehreren Layers wird visuell erkennbar, ob und an welchen Orten eine Korellation zwischen den verschiedenen Datenätzen besteht.
 
 
-- Darstellung als Layer ueber google maps
 
 ## Umsetzung
 
@@ -35,17 +39,31 @@ Ziel des Projekts ist es eine Webapplikation zu entwickeln, welche *open source*
 
 ### Integration der Karten API
 
-- here => leaflet => google
-- layer
-- ui features
+Als erste Karten API fasssten wir die HERE API ins Auge,
+da sie über dieselbe API auch Verkehrsdaten bietet.
+Auch die Google Maps API bietet direkt über die Maps API Verkehrsdaten.
+Im Vergleich stellte sich die Google Maps API aber durch umfassendere und genauere Verkehrsdaten als die bessere Alternative heraus.
 
-### Plan: Tile Layer
+### Integration Daten APIs
+
+- Feinstaubdaten von luftdaten.info
 
 
+- Wettterdaten von openweather
+    - Temperatur
+    - Luftdruck
+    - Luftfeuchtigkeit
+    - Windgeschwindigkeit
+
+
+
+### Tile Map
 
 ### Implementierung des Interpolations-Algorithmus
-Parallel hierzu entwickelten wir einen Algorithmus zur Interpolierung von gemittelten Sensorwerten für die Kacheln, zu denen keine unmittelbaren Sensorwerte vorliegen.
+Da sich nicht innerhalb jeder Kachel ein Sensor finden lässt begannen wir mit der Entwicklung eines Algorithmus zur Interpolation von gemittelten Sensorwerten für die Kacheln.
 Für diese Aufgabe wählten wir die Sprache Purescript, die durch ihre statische Typisierung besser für das sichere Implementieren von Datenstrukturen und Algorithmen geeignet ist als Javascript. Da Purescript zu Javascript kompiliert, versprachen wir uns eine nahtlose Einbindung mit der restlichen Anwendung.
+Wir entschieden uns in diesem Schritt für einen Algorithmus, der mit jeder Kachel die besten Sensorwerte aus den verschiedenen Himmelsrichtungen assoziiert.
+
 
 ### Implementierung des Algorithmus zur Koordinatenübersetzung
 
@@ -55,7 +73,13 @@ Auch dieser wurde in Purescript implementiert.
 
 ### Integration der Algorithmen in die restliche Anwendung
 
-Leider war es schwieriger als erwartet, die vom Purescript-Code generierten Datenstrukturen in leserlichen Javascript-Datenstrukturen zu decodieren. Die Ursache dafür liegt vermutlich an der geringen Erfahrung des Projektteams mit Purescript.
+Leider war es schwieriger als erwartet, die vom Purescript-Code generierten Datenstrukturen in leserlichen Javascript-Datenstrukturen zu umzuwandeln. Die Ursache dafür liegt vermutlich an unserer geringen Erfahrung mit Purescript und dem Fehlen eines einfachen Werkzeugs zur Umwandlung von komplexen Datenstrukturen wie TreeMaps in simple Javascript Datenstrukturen.
+Mit einer Funktion zum Parsen der Purescript Datenstrukturen gelang es uns dennoch, die Daten gut leserlich zur Weiterverarbeitung vorzubereiten.
+
+### Mitteln der Sensordaten mit Inverser Distanzwichtung
+Letztendlich mussten wir noch einen Algorithmus entwickeln, der die mit jeder Kachel assoziierten Sensorwerte gegeinander aufwiegt. Hierfür wählten wir die Inverse Distanzgewichtung, die wir ebenfalls in Javascript implementierten.
+Der resultierenden Wert bildet den Richtwert für die Einfärbung jeder Kachel.
+
 
 ### Normalisierung und Umwandlung der Daten in Farbgradienten
 
@@ -67,14 +91,18 @@ Dies erforderte fachspezifische Nachforschungen für die akzeptablen Werte der v
  - Temperatur: -10 Grad Celsius bis 40 Grad Celsius
  - Relative Luftfeuchtigkeit: 0 % relative Luftfeuchtigkeit bis 100 % relative Luftfeuchtigkeit
 
+Mit diesem Wissen konnten wir eine Funktion implementieren, die anhand der Grenzwerte die absoluten Sensorwerte in einen pro Datenkategorie unterschiedlichen Farbverlauf einordnet.
+
 ### Darstellung als Layer über der Karte
+
+
+### UI - Elemente und Legende
 
 
 ## Bewertung
 
-- Historische Daten schwierig
-
-- Wetterdaten nicht so detailliert wie gewuenscht, da großer Mangel an guten APIs (?)
+Das ursprünglich geplanten Implementieren von historischen Daten stellte sich als schwierig heraus. Zum einen ist über die freien bzw. Studentenlizenzen der meisten APIs nur das Abfragen von aktuellen Daten oder Daten aus der unmittelbarer Vergangenheit möglich. Das Abfragen von historischen Daten erfordert Lizenzkosten, die das Projektbudget übersteigen.
+Als Alternative käme das eigenhändige Abfragen von Sensorendaten in Frage. Dies war uns allerdings zeitlich nicht mehr möglich.
 
 
 ## Zusammenfassung und Ausblick
