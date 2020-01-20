@@ -5,6 +5,7 @@
   - [Ziel des Projekts](#ziel-des-projekts)
   - [Vorgehensweise](#vorgehensweise)
   - [Umsetzung](#umsetzung)
+    - [Grafischer Überblick über Datenfluss durch die Anwendung](#grafischer-%c3%9cberblick-%c3%bcber-datenfluss-durch-die-anwendung)
     - [Implementierung einer Web-Applikation in Vue.js](#implementierung-einer-web-applikation-in-vuejs)
     - [Integration der Karten API](#integration-der-karten-api)
     - [Integration Daten APIs](#integration-daten-apis)
@@ -118,6 +119,8 @@ Mit diesem Wissen konnten wir eine Funktion implementieren, die anhand der Grenz
 
 
 ### UI - Elemente und Legende
+
+
 
 
 ## Bewertung

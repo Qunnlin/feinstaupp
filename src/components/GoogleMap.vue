@@ -27,7 +27,7 @@ import {MapElementMixin} from 'vue2-google-maps'
                     "pressure": {"min": 98000, "max": 105000, "metric": "Pa"},
                     "humidity": {"min": 20, "max": 100, "metric": "%"},
                     "P1": {"min": 0, "max": 50, "metric": "µg/m³"},
-                    "P2": {"min": 0, "max": 25, "metric": "µg/m³"}
+                    "P2": {"min": 0, "max": 20, "metric": "µg/m³"}
                 },
                 sensorTypes: ["P1", "P2", "temperature","pressure", "humidity"],
             }
