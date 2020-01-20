@@ -656,7 +656,7 @@ import {MapElementMixin} from 'vue2-google-maps'
                 newLayer.setStyle(function(feature) {
                     return({
                         fillColor: feature.getProperty("color"),
-                        fillOpacity: 0.5,
+                        fillOpacity: 0.3,
                         strokeWeight: 1,
                         strokeOpacity: 0,
                         visible: true,

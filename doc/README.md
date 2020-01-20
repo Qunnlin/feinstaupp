@@ -5,6 +5,17 @@
   - [Ziel des Projekts](#ziel-des-projekts)
   - [Vorgehensweise](#vorgehensweise)
   - [Umsetzung](#umsetzung)
+    - [Implementierung einer Web-Applikation in Vue.js](#implementierung-einer-web-applikation-in-vuejs)
+    - [Integration der Karten API](#integration-der-karten-api)
+    - [Integration Daten APIs](#integration-daten-apis)
+    - [Tile Map](#tile-map)
+    - [Implementierung des Interpolations-Algorithmus](#implementierung-des-interpolations-algorithmus)
+    - [Implementierung des Algorithmus zur Koordinatenübersetzung](#implementierung-des-algorithmus-zur-koordinaten%c3%bcbersetzung)
+    - [Integration der Algorithmen in die restliche Anwendung](#integration-der-algorithmen-in-die-restliche-anwendung)
+    - [Mitteln der Sensordaten mit Inverser Distanzwichtung](#mitteln-der-sensordaten-mit-inverser-distanzwichtung)
+    - [Normalisierung und Umwandlung der Daten in Farbgradienten](#normalisierung-und-umwandlung-der-daten-in-farbgradienten)
+    - [Darstellung als Layer über der Karte](#darstellung-als-layer-%c3%bcber-der-karte)
+    - [UI - Elemente und Legende](#ui---elemente-und-legende)
   - [Bewertung](#bewertung)
   - [Zusammenfassung und Ausblick](#zusammenfassung-und-ausblick)
   - [Anhänge](#anh%c3%a4nge)
@@ -15,7 +26,7 @@ In diesem Dokument soll das Abschlussprojekt **Feinstaupp** von Felix Schick und
 
 ## Ziel des Projekts
 
-Ziel des Projekts ist es eine Webapplikation zu entwickeln, welche *open source* Feinstaub- und Umweltdaten, wie Temperatur, Luftdruck und Verkehrsdichte, auf einer Karten visualisiert und eine Analyse über die mögliche Korrelation dieser zulässt.
+Ziel des Projekts ist es eine Webapplikation zu entwickeln, welche *open source* Feinstaub- und Umweltdaten, wie Wind, Temperatur, Luftdruck und Verkehrsdichte, auf einer Karten visualisiert und eine Analyse über die mögliche Korrelation dieser zulässt.
 
 ## Vorgehensweise
 
@@ -40,20 +51,20 @@ Durch das aktivieren von mehreren Layers wird visuell erkennbar, ob und an welch
 ### Integration der Karten API
 
 Als erste Karten API fasssten wir die HERE API ins Auge,
-da sie über dieselbe API auch Verkehrsdaten bietet.
+da sie über dieselbe API auch Verkehrs und Wetterdaten bietet.
 Auch die Google Maps API bietet direkt über die Maps API Verkehrsdaten.
-Im Vergleich stellte sich die Google Maps API aber durch umfassendere und genauere Verkehrsdaten als die bessere Alternative heraus.
+Im Vergleich stellte sich die Google Maps API aber durch umfassendere und genauere Verkehrsdaten als die bessere Alternative heraus. Auch die integrierten Wetterdaten der HERE API stellte sich nicht als Vorteil heraus, da es genug andere Quellen für bessere Daten gab.
 
 ### Integration Daten APIs
 
 - Feinstaubdaten von luftdaten.info
 
 
-- Wettterdaten von openweather
+- Wettterdaten von openweathermaps
     - Temperatur
     - Luftdruck
     - Luftfeuchtigkeit
-    - Windgeschwindigkeit
+    - Windgeschwindigkeit & Richtung
 
 
 
@@ -87,9 +98,9 @@ Anschließend mussten die interpolierten Daten normalisiert und passende Farbgra
 Dies erforderte fachspezifische Nachforschungen für die akzeptablen Werte der verschiedenenen Messwerte. Folgende Werte wurde in einer Online-Recherche ermittelt.
 
  - Feinstaubwerte: 
- - atmosphärischer Druck: 0,950 - 0,970 bar als untere Grenze, 1,040 bis 1,065 als obere Grenze [ref](https://www.goruma.de/erde-und-natur/meteorologie/hoch-und-tiefdruckgebiete)
+ - atmosphärischer Druck: 0,950 - 0,970 bar als untere Grenze, 1,040 bis 1,080 als obere Grenze [ref](https://www.goruma.de/erde-und-natur/meteorologie/hoch-und-tiefdruckgebiete)
  - Temperatur: -10 Grad Celsius bis 40 Grad Celsius
- - Relative Luftfeuchtigkeit: 0 % relative Luftfeuchtigkeit bis 100 % relative Luftfeuchtigkeit
+ - Relative Luftfeuchtigkeit: 20 % relative Luftfeuchtigkeit bis 100 % relative Luftfeuchtigkeit
 
 Mit diesem Wissen konnten wir eine Funktion implementieren, die anhand der Grenzwerte die absoluten Sensorwerte in einen pro Datenkategorie unterschiedlichen Farbverlauf einordnet.
 
@@ -101,8 +112,7 @@ Mit diesem Wissen konnten wir eine Funktion implementieren, die anhand der Grenz
 
 ## Bewertung
 
-Das ursprünglich geplanten Implementieren von historischen Daten stellte sich als schwierig heraus. Zum einen ist über die freien bzw. Studentenlizenzen der meisten APIs nur das Abfragen von aktuellen Daten oder Daten aus der unmittelbarer Vergangenheit möglich. Das Abfragen von historischen Daten erfordert Lizenzkosten, die das Projektbudget übersteigen.
-Als Alternative käme das eigenhändige Abfragen von Sensorendaten in Frage. Dies war uns allerdings zeitlich nicht mehr möglich.
+Das ursprünglich geplanten Implementieren von historischen Daten stellte sich als schwierig heraus. Zum einen ist über die freien bzw. Studentenlizenzen der meisten APIs nur das Abfragen von aktuellen Daten oder Daten aus der unmittelbarer Vergangenheit möglich. Das Abfragen von historischen Daten erfordert Lizenzkosten, die das Projektbudget übersteigen. Die Wetterdaten des Deutschen Wetterdienst stehen zwar frei zur Verfügung, können jedoch nicht über eine API abgefragt werden. Das eigenhändige Verarbeiten war uns allerdings zeitlich nicht mehr möglich.
 
 
 ## Zusammenfassung und Ausblick
