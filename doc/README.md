@@ -118,7 +118,8 @@ Der resultierenden Wert bildet den Richtwert für die Einfärbung jeder Kachel.
 Anschließend mussten die interpolierten Daten normalisiert und passende Farbgradienten für die Farbdarstellung als Kartenlayer berechnet werden.
 Dies erforderte fachspezifische Nachforschungen für die akzeptablen Werte der verschiedenenen Messwerte. Folgende Werte wurde in einer Online-Recherche ermittelt.
 
- - Feinstaubwerte: 
+ - PM10: Partikel mit einem Durchmesser von 10 Mikrometern und kleiner => Grenzwert von 50 µg/m³ [ref](https://www.allum.de/stoffe-und-ausloeser/feinstaub-und-smog/grenzwerte-richtwerte)
+ - PM2.5: Partikel mit einem Durchmesser von 2.5 Mikrometern und kleiner => seit 2020 Grenzwert von 20 µg/m³ [ref](https://www.allum.de/stoffe-und-ausloeser/feinstaub-und-smog/grenzwerte-richtwerte)
  - atmosphärischer Druck: 0,950 - 0,970 bar als untere Grenze, 1,040 bis 1,080 als obere Grenze [ref](https://www.goruma.de/erde-und-natur/meteorologie/hoch-und-tiefdruckgebiete)
  - Temperatur: -10 Grad Celsius bis 40 Grad Celsius
  - Relative Luftfeuchtigkeit: 20 % relative Luftfeuchtigkeit bis 100 % relative Luftfeuchtigkeit
