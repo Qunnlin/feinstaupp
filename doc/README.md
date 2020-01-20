@@ -43,6 +43,10 @@ Durch das aktivieren von mehreren Layers wird visuell erkennbar, ob und an welch
 
 ## Umsetzung
 
+### Grafischer Überblick über Datenfluss durch die Anwendung
+
+![Datenflussdiagramm](./Diagram.png)
+
 
 ### Implementierung einer Web-Applikation in Vue.js
 
