@@ -89,7 +89,8 @@ Die zurückgegebenen Daten enthalten stets den Messwert eines Sensors und die Ko
 
 ### Tile Matrix
 
-Für eine gleichmäßige Darstellung der Sensorendaten wählen wir eine Matrix aus gleichgroßen Kacheln. Um die Karte auf den Raum Stuttgart zu begrenzen.
+Für eine gleichmäßige Darstellung der Sensorendaten wählen wir eine Matrix aus gleichgroßen Kacheln. Diese Matrix generieren wir aus den definierten Grenzen unseres Kartenabschnittes und einer gewählten horizontalen Auflösung. Dieses Gatter spannt sich von Nord-Westen nach Süd-Osten und wird als geoJSON Objekt gespeichert um eine visualisierung zu vereinfachen.
+
 
 
 ### Implementierung des Interpolations-Algorithmus
@@ -108,6 +109,7 @@ Auch dieser wurde in Purescript implementiert.
 
 Leider war es schwieriger als erwartet, die vom Purescript-Code generierten Datenstrukturen in leserlichen Javascript-Datenstrukturen zu umzuwandeln. Die Ursache dafür liegt vermutlich an unserer geringen Erfahrung mit Purescript und dem Fehlen eines einfachen Werkzeugs zur Umwandlung von komplexen Datenstrukturen wie TreeMaps in simple Javascript Datenstrukturen.
 Mit einer Funktion zum Parsen der Purescript Datenstrukturen gelang es uns dennoch, die Daten gut leserlich zur Weiterverarbeitung vorzubereiten.
+
 
 ### Mitteln der Sensordaten mit Inverser Distanzwichtung
 Letztendlich mussten wir noch einen Algorithmus entwickeln, der die mit jeder Kachel assoziierten Sensorwerte gegeinander aufwiegt. Hierfür wählten wir die Inverse Distanzgewichtung, die wir ebenfalls in Javascript implementierten.
