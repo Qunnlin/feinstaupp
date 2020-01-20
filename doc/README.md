@@ -43,12 +43,19 @@ Durch das aktivieren von mehreren Layers wird visuell erkennbar, ob und an welch
 
 ## Umsetzung
 
-### Grafischer Überblick über Datenfluss durch die Anwendung
-
-![Datenflussdiagramm](./Diagram.png)
-
+Der Code der Umsetzung ist auf [https://github.com/Qunnlin/feinstaupp](https://github.com/Qunnlin/feinstaupp) und [https://github.com/nicmr/sensor-tiles](https://github.com/nicmr/sensor-tiles) zu finden.
 
 ### Implementierung einer Web-Applikation in Vue.js
+
+Vue.js erlaubt das Verbinden von HTML-Markup und Javascript-Code in *.vue*-Dateien.
+Die Webapplikation folgt einer simplen Struktur:
+Die Gesamtstruktur des Projekts wird durch die Datei *App.vue* festgelegt. Der Code, der mit der Kartenvisualisierung zu tun hat, findet sich in der Komponente *components/GoogleMap.vue*.
+
+
+### Grafischer Überblick über Datenfluss durch die Anwendung
+
+
+![Datenflussdiagramm](./Diagram.png)
 
 
 
@@ -62,20 +69,23 @@ Im Vergleich stellte sich die Google Maps API aber durch umfassendere und genaue
 ### Integration Daten APIs
 
 
-Die Integration von verschiedenen DatenAPIs erfolgt über die einen http-Request mithilfe der Javascript-Funktion *fetch* an die URL der jeweiligen API.
+Die Integration von verschiedenen Daten-APIs erfolgt über die einen http-Request mithilfe der Javascript-Funktion *fetch* an die URL der jeweiligen API.
 Dabei verwenden wir folgende Daten-APIs:
 
 - Feinstaubdaten von *luftdaten.info*
+    - Feinstaub mit einem Partikeldurchmesser von maximal 2,5 Mikrometern, *"PM10"*
+    - Feinstaub mit einem Partikeldurchmesser von maximal 10 Mikrometern, *PM2.5"*
 - Wettterdaten von *openweathermap.org*
     - Temperatur
     - Luftdruck
     - Luftfeuchtigkeit
     - Windgeschwindigkeit & Richtung
+- Verkehrsdaten von der erwähnten Google Maps Karten-API
 
-Um Bandbreite zu sparen und nicht im nachhinein die Sensoren filtern zu müssen, fragen wir bewusst nur die Sensoren im Raum Stuttgart ab.
+Um Bandbreite zu sparen und nicht im nachhinein die Sensoren filtern zu müssen, fragen wir gezielt nur die Sensoren im Raum Stuttgart ab.
 Die zurückgegebenen Daten enthalten stets den Messwert eines Sensors und die Koordinaten des Sensorstandorts.
 
-### Tile Map
+### Tile Matrix
 
 Für eine gleichmäßige Darstellung der Sensorendaten wählen wir eine Matrix aus gleichgroßen Kacheln.
 
@@ -119,10 +129,22 @@ Mit diesem Wissen konnten wir eine Funktion implementieren, die anhand der Grenz
 
 ### UI - Elemente und Legende
 
+Google Maps bietet bereits vier Elemente für das User Interface: Zwei Buttons um den Zoom der Karte zu verändern, einen Vollbild-Button und einen "Street-View"-Button.
+
+Für unsere Anwendung haben wir zusätzlich ein *Layer Control*-Element angelegt. Mit diesem können die verschiedenen Datenvisualisierungslayer (de)aktiviert werden.
+Über zusätzliche Sensor-Checkboxen können die exakten Sensorpositionen der einzelnen Kategorien eingeblendet werden.
+
+Darüber hinaus haben wir auch ein *Legend*-Element angelegt, dass automatisch eine Legende zu den zum aktuellen Zeitpunkt ausgewählten Daten anzeigt.
+
+
 
 ## Bewertung
 
-Das ursprünglich geplanten Implementieren von historischen Daten stellte sich als schwierig heraus. Zum einen ist über die freien bzw. Studentenlizenzen der meisten APIs nur das Abfragen von aktuellen Daten oder Daten aus der unmittelbarer Vergangenheit möglich. Das Abfragen von historischen Daten erfordert Lizenzkosten, die das Projektbudget übersteigen. Die Wetterdaten des Deutschen Wetterdienst stehen zwar frei zur Verfügung, können jedoch nicht über eine API abgefragt werden. Das eigenhändige Verarbeiten war uns allerdings zeitlich nicht mehr möglich.
+Das ursprünglich geplanten Implementieren von historischen Daten stellte sich als schwierig heraus.
+Zum einen ist über die freien bzw. Studentenlizenzen der meisten APIs nur das Abfragen von aktuellen Daten oder Daten aus der unmittelbarer Vergangenheit möglich.
+Das Abfragen von historischen Daten erfordert Lizenzkosten, die das Projektbudget übersteigen.
+Die Wetterdaten des Deutschen Wetterdienst stehen zwar frei zur Verfügung, können jedoch nicht über eine API abgefragt werden.
+Das eigenhändige Verarbeiten war uns allerdings zeitlich nicht mehr möglich.
 
 
 ## Zusammenfassung und Ausblick
