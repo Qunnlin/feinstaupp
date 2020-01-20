@@ -24,7 +24,7 @@ import {MapElementMixin} from 'vue2-google-maps'
                 gridWidth: 100,
                 grenzwerte: {
                     "temperature": { "min": -10, "max": 40, "metric": "C°"},
-                    "pressure": {"min": 98000, "max": 105000, "metric": "Pa"},
+                    "pressure": {"min": 980, "max": 1040, "metric": "hPa"},
                     "humidity": {"min": 20, "max": 100, "metric": "%"},
                     "P1": {"min": 0, "max": 50, "metric": "µg/m³"},
                     "P2": {"min": 0, "max": 20, "metric": "µg/m³"}
@@ -125,9 +125,10 @@ import {MapElementMixin} from 'vue2-google-maps'
                     newFormat.timestamp = sensor.timestamp;
                     newFormat.sensordatavalues = {};
                     sensor.sensordatavalues.forEach(sensordatavalue => {
+                        if(sensordatavalue.value_type == "pressure") {sensordatavalue.value = sensordatavalue.value/100};
                         if(this.grenzwerte.hasOwnProperty(sensordatavalue.value_type) && (sensordatavalue.value < this.grenzwerte[sensordatavalue.value_type].max *2) && (sensordatavalue.value > this.grenzwerte[sensordatavalue.value_type].min)){
                             if(sortedData[sensordatavalue.value_type]){
-                            
+                                
                                 newFormat.sensordatavalues[sensordatavalue.value_type] = sensordatavalue.value;
                                 sortedData[sensordatavalue.value_type].push(newFormat);
                             } else {
@@ -186,7 +187,7 @@ import {MapElementMixin} from 'vue2-google-maps'
 
             // generate Interpolated Tiles via the PureScript Algorithm
             insertSensorsPurescript(sensors, type,  mapBounds, cell_count_width) {
-
+                
                 // create sensor objects
                 const ps_sensors = sensors.map((old) => Tiles.createCoordSensor(old.location.latitude, old.location.longitude, old.sensordatavalues[type]));
 
