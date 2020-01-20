@@ -127,6 +127,11 @@ Mit diesem Wissen konnten wir eine Funktion implementieren, die anhand der Grenz
 
 ### Darstellung als Layer über der Karte
 
+Um die Datenmatrix als Layer über die Google Maps API darzustellen, müssen sie in eine GeoJSON-Datenstruktu eingebunden werden.
+In diesem Schritt werden auch die Indizes der Kachelmatrix wieder in Koordinaten rückübersetzt.
+
+Anschließend kann die GeoJSON and die Google Maps API übergeben werden.
+
 
 ### UI - Elemente und Legende
 
