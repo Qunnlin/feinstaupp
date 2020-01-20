@@ -61,18 +61,24 @@ Im Vergleich stellte sich die Google Maps API aber durch umfassendere und genaue
 
 ### Integration Daten APIs
 
-- Feinstaubdaten von luftdaten.info
 
+Die Integration von verschiedenen DatenAPIs erfolgt über die einen http-Request mithilfe der Javascript-Funktion *fetch* an die URL der jeweiligen API.
+Dabei verwenden wir folgende Daten-APIs:
 
-- Wettterdaten von openweathermaps
+- Feinstaubdaten von *luftdaten.info*
+- Wettterdaten von *openweathermap.org*
     - Temperatur
     - Luftdruck
     - Luftfeuchtigkeit
     - Windgeschwindigkeit & Richtung
 
-
+Um Bandbreite zu sparen und nicht im nachhinein die Sensoren filtern zu müssen, fragen wir bewusst nur die Sensoren im Raum Stuttgart ab.
+Die zurückgegebenen Daten enthalten stets den Messwert eines Sensors und die Koordinaten des Sensorstandorts.
 
 ### Tile Map
+
+Für eine gleichmäßige Darstellung der Sensorendaten wählen wir eine Matrix aus gleichgroßen Kacheln.
+
 
 ### Implementierung des Interpolations-Algorithmus
 Da sich nicht innerhalb jeder Kachel ein Sensor finden lässt begannen wir mit der Entwicklung eines Algorithmus zur Interpolation von gemittelten Sensorwerten für die Kacheln.
