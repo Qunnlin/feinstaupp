@@ -5,11 +5,11 @@
   - [Ziel des Projekts](#ziel-des-projekts)
   - [Vorgehensweise](#vorgehensweise)
   - [Umsetzung](#umsetzung)
-    - [Grafischer Überblick über Datenfluss durch die Anwendung](#grafischer-%c3%9cberblick-%c3%bcber-datenfluss-durch-die-anwendung)
     - [Implementierung einer Web-Applikation in Vue.js](#implementierung-einer-web-applikation-in-vuejs)
+    - [Grafischer Überblick über Datenfluss durch die Anwendung](#grafischer-%c3%9cberblick-%c3%bcber-datenfluss-durch-die-anwendung)
     - [Integration der Karten API](#integration-der-karten-api)
     - [Integration Daten APIs](#integration-daten-apis)
-    - [Tile Map](#tile-map)
+    - [Tile Matrix](#tile-matrix)
     - [Implementierung des Interpolations-Algorithmus](#implementierung-des-interpolations-algorithmus)
     - [Implementierung des Algorithmus zur Koordinatenübersetzung](#implementierung-des-algorithmus-zur-koordinaten%c3%bcbersetzung)
     - [Integration der Algorithmen in die restliche Anwendung](#integration-der-algorithmen-in-die-restliche-anwendung)
@@ -135,7 +135,13 @@ Google Maps bietet bereits vier Elemente für das User Interface: Zwei Buttons u
 Für unsere Anwendung haben wir zusätzlich ein *Layer Control*-Element angelegt. Mit diesem können die verschiedenen Datenvisualisierungslayer (de)aktiviert werden.
 Über zusätzliche Sensor-Checkboxen können die exakten Sensorpositionen der einzelnen Kategorien eingeblendet werden.
 
+![Layer Control](controls.png)
+
+
 Darüber hinaus haben wir auch ein *Legend*-Element angelegt, dass automatisch eine Legende zu den zum aktuellen Zeitpunkt ausgewählten Daten anzeigt.
+
+![Legende](legende.png)
+
 
 
 
