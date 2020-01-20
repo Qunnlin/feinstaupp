@@ -1,6 +1,13 @@
 <template>
 
     <div class="google-map">
+        <div id="controls">
+            
+
+        </div>
+        <div id="legend">
+
+        </div>
         <gmap-map ref="mapRef"
         :center="center"
         :zoom="14"
@@ -18,8 +25,9 @@ import {MapElementMixin} from 'vue2-google-maps'
         data: function () { 
             return {
                 center: { lat: 48.7758459, lng: 9.1829321 },
-                gridWidth: 76,
+                gridWidth: 100,
                 layers: {},
+                markers: []
             }
         },
         created: function () { 
@@ -39,12 +47,12 @@ import {MapElementMixin} from 'vue2-google-maps'
  
                 // set Map Options and Zoom
                 map.setOptions({
-                    minZoom: 14,
+                    minZoom: 13,
                     restriction: {
                         latLngBounds: mapBounds
                     }
                 });
-
+                this.initCustomControls(map);
                 var grid = this.getGrid2(mapBounds, this.gridWidth);
                 var geojson = this.createGeoJson(grid);
 
@@ -60,81 +68,90 @@ import {MapElementMixin} from 'vue2-google-maps'
 
                     // sort air data after value_types (temperature, pressure, P1/P2 pollution)
                     var sortedData = this.sortSensorData(data);
+                    console.log(sortedData);
 
 
-                    // P1 Sensors
-                    let sensorType = "P1";
 
-                    // generate interpolated data & update geoJson
-                    let p1_interpolated = this.insertSensorsPurescript(sortedData[sensorType],mapBounds, this.gridWidth);
-                    let p1_geojson = this.mapGrid(geojson, p1_interpolated);
+                    // // P1 Sensors
+                    // let sensorType = "P1";
 
-                    // create Layer
-                    let p1_layer = this.createLayer(p1_geojson, map);
+                    // // generate interpolated data & update geoJson
+                    // let p1_interpolated = this.insertSensorsPurescript(sortedData[sensorType], sensorType, mapBounds, this.gridWidth);
+                    // let p1_geojson = this.mapGrid(geojson, p1_interpolated);
 
-                    // create controls
-                    var p1_controlDiv = document.createElement('div');
-                    var p1_customControl = new this.initCustomControls(p1_controlDiv, p1_layer, sensorType, map);
-                    p1_controlDiv.index = 1;
-                    map.controls[google.maps.ControlPosition.RIGHT_TOP].push(p1_controlDiv);
+                    // // create Layer
+                    // let p1_layer = this.createLayer(p1_geojson, map);
+
+                    // // create controls
                     
-                    // P1 Sensors
-                    sensorType = "P2";
+                    // this.addControlItem(p1_layer,"P1", map)
+
+
+
+                    // // P2 Sensors
+                    // sensorType = "P2";
+
+                    // // generate interpolated data & update geoJson
+                    // let p2_interpolated = this.insertSensorsPurescript(sortedData[sensorType], sensorType, mapBounds, this.gridWidth);
+                    // let p2_geojson = this.mapGrid(geojson, p2_interpolated);
+
+                    // // create Layer
+                    // let p2_layer = this.createLayer(p2_geojson, map);
+
+                    // // create controls
+                    
+                    // this.addControlItem(p2_layer,"P2", map)
+
+
+
+                //    // humidity Sensors
+                //     let sensorType = "humidity";
+                //     this.createSensorMarker(sortedData[sensorType], sensorType, map);
+
+                //     // generate interpolated data & update geoJson
+                //     let h_interpolated = this.insertSensorsPurescript(sortedData[sensorType],mapBounds, this.gridWidth);
+                //     let h_geojson = this.mapGrid(geojson, h_interpolated);
+
+                //     // create Layer
+                //     let h_layer = this.createLayer(h_geojson, map);
+
+                //     // create controls
+                    
+                //     this.addControlItem(h_layer,"Humidity", map)
+
+
+
+                //     // Temperatur Sensors
+                //     sensorType = "temperature";
+
+                //     // generate interpolated data & update geoJson
+                //     let t_interpolated = this.insertSensorsPurescript(sortedData[sensorType],mapBounds, this.gridWidth);
+                //     let t_geojson = this.mapGrid(geojson, t_interpolated);
+
+                //     // create Layer
+                //     let t_layer = this.createLayer(t_geojson, map);
+
+                //     // create controls
+                    
+                //     this.addControlItem(t_layer,"Temperature", map)
+
+
+
+                    // Pressure Sensors
+                    let sensorType = "pressure";
 
                     // generate interpolated data & update geoJson
-                    let p2_interpolated = this.insertSensorsPurescript(sortedData[sensorType],mapBounds, this.gridWidth);
-                    let p2_geojson = this.mapGrid(geojson, p2_interpolated);
+                    let p_interpolated = this.insertSensorsPurescript(sortedData[sensorType],mapBounds, this.gridWidth);
+                    let p_geojson = this.mapGrid(geojson, p_interpolated);
 
                     // create Layer
-                    let p2_layer = this.createLayer(p2_geojson, map);
+                    let p_layer = this.createLayer(p_geojson, map);
 
                     // create controls
-                    var p2_controlDiv = document.createElement('div');
-                    var p2_customControl = new this.initCustomControls(p2_controlDiv, p2_layer, sensorType, map);
-                    p2_controlDiv.index = 2;
-                    map.controls[google.maps.ControlPosition.RIGHT_TOP].push(p2_controlDiv);
+                    
+                    this.addControlItem(p_layer,"Pressure", map)
 
 
-//--------------------------------------------------------------------
-                    sortedData["P1"].forEach(sensor => {
-                        
-                        if(sensor.sensordatavalues.P1 > 0){
-                            // create marker for each sensor
-                            let marker = new google.maps.Marker({
-                                position:{lat: parseFloat(sensor.location.latitude), lng: parseFloat(sensor.location.longitude)},
-                                map: map,
-                                title: sensor.name
-                            });
-
-                            // create pop up window
-                            let sensorInformation = '<div id=sensorBox>'+
-                                '<h3>'+ sensor.sensor.sensor_type.manufacturer + ", " + sensor.sensor.sensor_type.name +'</h3>' +
-                                '<p>Messwert: ' + sensor.sensordatavalues.P1 + '</p>' +
-                                '<p>' + sensor.location.latitude + ", " + sensor.location.longitude + '</p>' +
-                                // '<p>Lufdruck: ' + sensor.main.pressure + ' hPa</p>' +
-                                // '<p>Luftfeuchtigkeit: ' + sensor.main.humidity + '%</p>' +
-                                // '<b>Windgeschwindigkeit: ' + sensor.wind.speed + ' km/h</b>' +
-                                '</div>';
-
-                            let infoWindow = new google.maps.InfoWindow({ 
-                                content: sensorInformation});
-
-                            // add functionality
-                            var opened = false;
-                            marker.addListener('click', function() {
-                                if(opened){
-                                    infoWindow.close()
-                                    opened = false;
-                                } else {
-                                    infoWindow.open(map, marker);
-                                    opened = true;
-
-                                }
-                            });
-                        }
-
-
-                    });
   
                 });                
             }); 
@@ -159,7 +176,6 @@ import {MapElementMixin} from 'vue2-google-maps'
             async fetchData(url) {
                 try {
                     var response = await fetch(url);
-                    console.log(response);
                     return response;
                 } catch(err) {
                     alert(err);
@@ -202,8 +218,7 @@ import {MapElementMixin} from 'vue2-google-maps'
                 var grid =[];
                 let cell_width = this.calc_cell_width(mapBounds, cell_count_width)                
                 let cell_count_height =  Math.round(this.calc_cell_count_height(mapBounds, cell_width));
-                console.log("Resolution: " + cell_count_width + "x" + cell_count_height);          
-                
+
                 for(var i = 0; i<= cell_count_height; i+= 1){
                     for(var j = 0; j<=cell_count_width; j+=1){
                         let cellBounds = {
@@ -231,9 +246,9 @@ import {MapElementMixin} from 'vue2-google-maps'
                 return Math.floor((mapBounds.north - mapBounds.south) / cell_width);     
             },
 
-            insertSensorsPurescript(sensors, mapBounds, cell_count_width) {
+            insertSensorsPurescript(sensors, type,  mapBounds, cell_count_width) {
                 // create sensor objects
-                const ps_sensors = sensors.map((old) => Tiles.createCoordSensor(old.location.latitude, old.location.longitude, old.sensordatavalues.P1));
+                const ps_sensors = sensors.map((old) => Tiles.createCoordSensor(old.location.latitude, old.location.longitude, old.sensordatavalues[type]));
 
                 //create matrix
                 const ps_mapbounds = Tiles.createMapBounds(mapBounds.north, mapBounds.south, mapBounds.west, mapBounds.east);
@@ -244,8 +259,6 @@ import {MapElementMixin} from 'vue2-google-maps'
 
                 console.log(with_sensors);
                 let interpolatedTiles = this.parseCoordMatrix(with_sensors.value0);
-                // let as_json = Tiles.jsonify(with_sensors);
-                    // console.log(as_json);
                 return interpolatedTiles;
                     
             },
@@ -258,32 +271,27 @@ import {MapElementMixin} from 'vue2-google-maps'
             },
 
             handleTwo(tile){
-                // console.log(tile)
-                var values = [];
+
+var values = [];
                 for( let entry in tile){
                     let type = tile[entry].__proto__.constructor.name;
-                    // console.log(type);
-                    // console.log(tile.value0[entry]);
+
                     if(type == "Two"){
-                        // console.log("GO RECURSIVE");
                         let a1 = this.handleTwo(tile[entry]);
-                        // console.log("A1",a1)
                         a1.forEach( v => {values.push(v)});
                     } else if (type =="Three"){
                         let a2 = this.handleThree(tile[entry]);
-                        // console.log("A2",a2)
                         a2.forEach( v => {values.push(v)});
                     } else if (type == "Tuple") {
-                        // console.log("A3",{sensorsValue: tile[entry].value1, weight: tile[entry].value0})
                         values.push({sensorsValue: tile[entry].value1, weight: tile[entry].value0});
                     }
                 }
-                // console.log(values);
                 return values;
             }, 
 
 
             parseCoordMatrix(coordMatrix){
+                console.log(coordMatrix);
                 let cellWidth = coordMatrix.value0;
                 let size = coordMatrix.value2.size;
                 let parsed = coordMatrix.value2.values.map( tile => {
@@ -298,7 +306,6 @@ import {MapElementMixin} from 'vue2-google-maps'
                         case "Interpolated":
 
                             var values = [];
-                            //console.log(tile)
                             let kind2 = tile.value0.__proto__.constructor.name;
                             if(kind2 == "Three"){
                                 let v1 = this.handleThree(tile.value0);
@@ -318,9 +325,7 @@ import {MapElementMixin} from 'vue2-google-maps'
             },
 
             mapGrid(grid, interpolated){
-                console.log(grid);
                 let features = grid.features;
-                console.log(interpolated);
                 for (let i = 0; i < interpolated.length; i++) {
 
   
@@ -333,22 +338,19 @@ import {MapElementMixin} from 'vue2-google-maps'
 
                     } else {
                         let tileValue = 0;
+
                         interpolated[i].values.forEach(value => {
                             tileValue += value.sensorsValue/(value.weight+1);
                         })
-                        // console.log("RAW",tileValue);
-                        // console.log("NORM",normValue);
                         let normValue = this.normalize(tileValue, 0, 50);
                         features[i].properties.color = this.colorGradient(normValue*100);
                         features[i].properties["influence"] = interpolated[i].values;
                         features[i].properties["value"] = tileValue;
                         features[i].properties["norm_value"] = normValue;
-
-
-                        // console.log(features[i].properties.color);
                     }
                     
                 }
+                console.log(grid);
                 return grid;
             },
             normalize(value, min, max){
@@ -365,51 +367,64 @@ import {MapElementMixin} from 'vue2-google-maps'
                 return 'rgb('+g+','+r+',0)';
             },
 
-            initCustomControls(controlDiv, layer, text, map){
+            initCustomControls(map){
+            
+                var menuUI = document.getElementById('controls');
+                menuUI.style.backgroundColor = '#fff';
+                menuUI.style.border = '2px solid #fff';
+                menuUI.style.borderRadius = '3px';
+                menuUI.style.boxShadow = '0 2px 6px rgba(0,0,0,.3)';
+                menuUI.style.cursor = 'pointer';
+                menuUI.style.marginBottom = '22px';
+                menuUI.style.textAlign = 'left';
+                menuUI.style.fontFamily = 'Roboto,Arial,sans-serif';
+                menuUI.style.fontSize = '18px';
+                menuUI.style.padding = '0px 17px';
+                menuUI.style.verticalAlign = 'middle';
+
+                menuUI.innerHTML = "Layer Control";
+                menuUI.style.fontWeight = 'bold';
+                menuUI.index = 1;
+                map.controls[google.maps.ControlPosition.RIGHT_TOP].push(menuUI);
                 
-                var menuUI = document.createElement('div');
-                menuUI.title = 'Click to recenter the map';
 
+            },
 
-                var controlUI = document.createElement('div');
-                controlUI.style.backgroundColor = '#fff';
-                controlUI.style.border = '2px solid #fff';
-                controlUI.style.borderRadius = '3px';
-                controlUI.style.boxShadow = '0 2px 6px rgba(0,0,0,.3)';
-                controlUI.style.cursor = 'pointer';
-                controlUI.style.marginBottom = '22px';
-                controlUI.style.textAlign = 'center';
-                controlUI.title = 'Click to toggle ' + text + 'Layer';
-                controlDiv.appendChild(controlUI);
-
+            addControlItem(layer, text, map){
                 
                 var controlText = document.createElement('div');
-                controlText.style.color = 'rgb(25,25,25)';
-                controlText.style.fontFamily = 'Roboto,Arial,sans-serif';
-                controlText.style.fontSize = '16px';
-                controlText.style.lineHeight = '38px';
-                controlText.style.paddingLeft = '5px';
                 controlText.style.textAlign = 'left';
-                controlText.style.paddingRight = '5px';
-                controlText.innerHTML = 'Toggle ' + text;
-                controlUI.appendChild(controlText);
-                // console.log(layers);
+                document.getElementById("controls").appendChild(controlText);
 
-                let toggled = false;
-                console.log(layer);
+
+                var layerCheck = document.createElement('input');
+   
+                layerCheck.type = "checkbox";
+                layerCheck.name = "layerCheck";
+                layerCheck.value = "value";
+                layerCheck.id = "layerCheck";
+                controlText.appendChild(layerCheck);
+                
+                var label = document.createElement('label')
+                label.htmlFor = "layerCheck";
+                label.style.fontWeight = 'normal';
+
+                label.appendChild(document.createTextNode(text + ' Layer'));
+                controlText.appendChild(label);
+
+
 
                 // Setup the click event listeners: simply set the map to Chicago.
-                controlUI.addEventListener('click', function() {
-                    if(toggled == false){
-                        toggled = true;
+
+                layerCheck.addEventListener('click', function() {
+                    if(this.checked){
                         layer.setMap(map);
                     } else {
-                        toggled = false;
                         layer.setMap(null);
                     }
                  });
-
             },
+
             addWeatherData(map){
                 // fetch weatherData and add Stations to map
                 let weatherData = this.fetchJSON("http://api.openweathermap.org/data/2.5/find?lat=48.7758459&lon=9.1829321&cnt=15&units=metric&appid=9ed58223d2e011bd45529508e9b9d8b6");
@@ -575,11 +590,47 @@ import {MapElementMixin} from 'vue2-google-maps'
                     console.log(event.feature.getProperty("influence"));
                     console.log(event.feature.getProperty("value"));
                     console.log(event.feature.getProperty("norm_value"));
-
-
                 })
                 return newLayer;
             },
+            createSensorMarker(sensors, type, map){
+                sensors.forEach(sensor => {
+                    if(sensor.sensordatavalues[type] > 0){
+                        // create marker for each sensor
+                        let marker = new google.maps.Marker({
+                            position:{lat: parseFloat(sensor.location.latitude), lng: parseFloat(sensor.location.longitude)},
+                            title: sensor.name,
+                            map: map
+                        });
+
+                        // create pop up window
+                        let sensorInformation = '<div id=sensorBox>'+
+                            '<h3>'+ sensor.sensor.sensor_type.manufacturer + ", " + sensor.sensor.sensor_type.name +'</h3>' +
+                            '<p>Messwert: ' + sensor.sensordatavalues[type] + '</p>' +
+                            '<p>' + sensor.location.latitude + ", " + sensor.location.longitude + '</p>' +
+                            // '<p>Lufdruck: ' + sensor.main.pressure + ' hPa</p>' +
+                            // '<p>Luftfeuchtigkeit: ' + sensor.main.humidity + '%</p>' +
+                            // '<b>Windgeschwindigkeit: ' + sensor.wind.speed + ' km/h</b>' +
+                            '</div>';
+
+                        let infoWindow = new google.maps.InfoWindow({ 
+                            content: sensorInformation});
+
+                        // add functionality
+                        var opened = false;
+                        marker.addListener('click', function() {
+                            if(opened){
+                                infoWindow.close()
+                                opened = false;
+                            } else {
+                                infoWindow.open(map, marker);
+                                opened = true;
+
+                            }
+                        });
+                    }
+                });
+            }
         }
     }
 </script>

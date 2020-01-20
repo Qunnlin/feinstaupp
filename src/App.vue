@@ -11,13 +11,16 @@
             lng="9.1829321"
             width="100%"
             height="900px" /> -->
-        <GoogleMap/>
+        <GoogleMap>
+
+        </GoogleMap>
+
     </div>
 </template>
 
 <script>
-    import HereMap from "./components/HereMap.vue"
-    import Leaflet from "./components/Leaflet.vue"
+    // import HereMap from "./components/HereMap.vue"
+    // import Leaflet from "./components/Leaflet.vue"
     import GoogleMap from "./components/GoogleMap.vue"
 
     export default {
@@ -25,7 +28,7 @@
         components: {
             // HereMap
             // Leaflet
-            GoogleMap
+            GoogleMap,
         }
     }
 </script>
