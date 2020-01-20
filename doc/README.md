@@ -81,7 +81,7 @@ Dabei verwenden wir folgende Daten-APIs:
     - Luftdruck
     - Luftfeuchtigkeit
     - Windgeschwindigkeit & Richtung
-- Verkehrsdaten von der erwähnten Google Maps Karten-API
+- Verkehrsdaten von der erwähnten Google Maps API
 
 Um Bandbreite zu sparen und nicht im nachhinein die Sensoren filtern zu müssen, fragen wir gezielt nur die Sensoren im Raum Stuttgart ab.
 Die zurückgegebenen Daten enthalten stets den Messwert eines Sensors und die Koordinaten des Sensorstandorts.
@@ -128,25 +128,29 @@ Mit diesem Wissen konnten wir eine Funktion implementieren, die anhand der Grenz
 
 ### Darstellung als Layer über der Karte
 
-Um die Datenmatrix als Layer über die Google Maps API darzustellen, müssen sie in eine GeoJSON-Datenstruktu eingebunden werden.
+Um die Datenmatrix als Layer über die Google Maps API darzustellen, müssen sie ins GeoJSON-Format transformiert werden.
 In diesem Schritt werden auch die Indizes der Kachelmatrix wieder in Koordinaten rückübersetzt.
 
-Anschließend kann die GeoJSON and die Google Maps API übergeben werden.
+Anschließend können die als GeoJSON formatierten Daten an die Google Maps API übergeben werden, die diese dann als Layer rendert.
 
+![Interpolation](./interpolation_p1.PNG)
 
 ### UI - Elemente und Legende
 
 Google Maps bietet bereits vier Elemente für das User Interface: Zwei Buttons um den Zoom der Karte zu verändern, einen Vollbild-Button und einen "Street-View"-Button.
 
 Für unsere Anwendung haben wir zusätzlich ein *Layer Control*-Element angelegt. Mit diesem können die verschiedenen Datenvisualisierungslayer (de)aktiviert werden.
+
+![Layer Control](./controls.PNG)
+
 Über zusätzliche Sensor-Checkboxen können die exakten Sensorpositionen der einzelnen Kategorien eingeblendet werden.
 
-![Layer Control](controls.png)
+![Interpolation with markers](./interpolation_p1_marker.PNG)
 
 
-Darüber hinaus haben wir auch ein *Legend*-Element angelegt, dass automatisch eine Legende zu den zum aktuellen Zeitpunkt ausgewählten Daten anzeigt.
+Darüber hinaus haben wir auch ein *Legend*-Element angelegt, das automatisch eine Legende zu den zum aktuellen Zeitpunkt ausgewählten Daten anzeigt.
 
-![Legende](legende.png)
+![Legende](./legende.PNG)
 
 
 
