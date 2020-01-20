@@ -20,6 +20,7 @@
   - [Bewertung](#bewertung)
   - [Zusammenfassung und Ausblick](#zusammenfassung-und-ausblick)
   - [Anhänge](#anh%c3%a4nge)
+    - [Installation](#installation)
 # Einleitung
 
 # Visuelle Analyse Luftqualität Stuttgart
@@ -88,7 +89,7 @@ Die zurückgegebenen Daten enthalten stets den Messwert eines Sensors und die Ko
 
 ### Tile Matrix
 
-Für eine gleichmäßige Darstellung der Sensorendaten wählen wir eine Matrix aus gleichgroßen Kacheln.
+Für eine gleichmäßige Darstellung der Sensorendaten wählen wir eine Matrix aus gleichgroßen Kacheln. Um die Karte auf den Raum Stuttgart zu begrenzen.
 
 
 ### Implementierung des Interpolations-Algorithmus
@@ -99,7 +100,7 @@ Wir entschieden uns in diesem Schritt für einen Algorithmus, der mit jeder Kach
 
 ### Implementierung des Algorithmus zur Koordinatenübersetzung
 
-Um die Positionen der Sensoren erfolreich auf eine zweidimensional Kachelmatrix übertragen zu können, ist ein Algorithmus zur Umrechnung von Koordinaten in Matrix-Indizes unter Beachtung der Größe des sichtbaren Kartenabschnitts und der Auflösung der Kachelmatrix erforderlich.
+Um die Positionen der Sensoren erfolgreich auf eine zweidimensional Kachelmatrix übertragen zu können, ist ein Algorithmus zur Umrechnung von Koordinaten in Matrix-Indizes unter Beachtung der Größe des sichtbaren Kartenabschnitts und der Auflösung der Kachelmatrix erforderlich.
 Auch dieser wurde in Purescript implementiert.
 
 
@@ -170,3 +171,28 @@ Das eigenhändige Verarbeiten war uns allerdings zeitlich nicht mehr möglich.
 
 
 ## Anhänge
+
+### Installation
+
+Um das Projekt auf einem eigenen Server zu hosten muss zunächst das git-Repository von GitHub geklont werden.
+
+```shell
+git clone https://github.com/Qunnlin/feinstaupp.git
+cd feinstaupp
+```
+Danach müssen die benötigten dependencies via npm installiert werden
+
+```shell
+npm install
+```
+
+Das Projekt kann dann entweder direkt für einen development Server kompiliert und gehostet werden
+
+```shell
+npm run serve
+```
+
+Oder für die Produktion kompiliert werden
+```shell
+npm run build
+```
