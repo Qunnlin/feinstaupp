@@ -50,9 +50,10 @@ Der Code der Umsetzung ist auf [https://github.com/Qunnlin/feinstaupp](https://g
 
 ### Implementierung einer Web-Applikation in Vue.js
 
-Um unsere Web-Applikation zu entwickeln haben wir das Single Page JavaScript Framework ausgewählt. Vue.js erlaubt das Verbinden von HTML-Markup und Javascript-Code in *.vue*-Dateien. 
+Um unsere Web-Applikation zu entwickeln haben wir das Single Page JavaScript Framework Vue.js ausgewählt. Vue.js erlaubt das Verbinden von HTML-Markup und Javascript-Code in *.vue*-Dateien. 
 Die Webapplikation folgt einer simplen Struktur:
-Die Gesamtstruktur des Projekts wird durch die Datei *App.vue* festgelegt. In dieser Datei können verschiedene Komponenten hinzugefügt, welche ihrer Gesamtheit die Applikation definieren.  Der Code, der mit der Kartenvisualisierung zu tun hat, findet sich in der Komponente *components/GoogleMap.vue*.
+Die Gesamtstruktur des Projekts wird durch die Datei *App.vue* festgelegt. In dieser Datei können verschiedene Komponenten hinzugefügt, welche ihrer Gesamtheit die Applikation definieren.
+Der Code, der mit der Kartenvisualisierung zu tun hat, befindet sich in der Komponente *components/GoogleMap.vue*.
 
 
 ### Grafischer Überblick über Datenfluss durch die Anwendung
@@ -102,7 +103,7 @@ Für eine gleichmäßige Darstellung der Sensorendaten wählen wir eine Matrix a
 ### Implementierung des Interpolations-Algorithmus
 Da sich nicht innerhalb jeder Kachel ein Sensor finden lässt begannen wir mit der Entwicklung eines Algorithmus zur Interpolation von gemittelten Sensorwerten für die Kacheln.
 Für diese Aufgabe wählten wir die Sprache Purescript, die durch ihre statische Typisierung und algebraische Datentypen besser für das sichere Implementieren von Datenstrukturen und Algorithmen geeignet ist als Javascript. Da Purescript zu Javascript kompiliert, versprachen wir uns eine nahtlose Einbindung mit der restlichen Anwendung.
-Das repository für den Purescript-Code befindet sich unter [https://www.github.com/nicmr/sensor-tiles](https://www.github.com/nicmr/sensor-tiles).
+Das repository für den Purescript-Code befindet sich unter [https://www.github.com/nicmr/sensor-tiles](https://www.github.com/nicmr/sensor-tiles). Der Quellcode findet sich unter dem pfad *src/Tiles.purs* des Repository.
 Wir entschieden uns in diesem Schritt für einen Algorithmus, der mit jeder Kachel den besten Sensorwerte aus jeder der vier Himmelsrichtungen assoziiert.
 
 
