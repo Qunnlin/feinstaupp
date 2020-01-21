@@ -83,6 +83,7 @@ Dabei verwenden wir folgende Daten-APIs:
     - Luftfeuchtigkeit
     - Windgeschwindigkeit & Richtung
 - Verkehrsdaten von der erwähnten Google Maps API
+- Geländedaten, ebenfalls von der Google Maps API
 
 Um Bandbreite zu sparen und nicht im nachhinein die Sensoren filtern zu müssen, fragen wir gezielt nur die Sensoren im Raum Stuttgart ab.
 Die zurückgegebenen Daten enthalten stets den Messwert eines Sensors und die Koordinaten des Sensorstandorts.
@@ -168,8 +169,27 @@ Das Abfragen von historischen Daten erfordert Lizenzkosten, die das Projektbudge
 Die Wetterdaten des Deutschen Wetterdienst stehen zwar frei zur Verfügung, können jedoch nicht über eine API abgefragt werden.
 Das eigenhändige Verarbeiten war uns allerdings zeitlich nicht mehr möglich.
 
+Das Verwenden von vue.js war sehr erfolgreich, auch wenn viele der Features durch das begrenzte Scope des Projekts nicht zum Einsatz kamen. Auch das Format der .vue-Dateien und das vue-spezifische Tooling waren sehr praktisch.
+
+Die Sprache Purescript eignete sich wie erwartet sehr gut zum Implementieren von Algorithmen. Lediglich die Exportierung von Datenstrukturen an reines Javascript war nicht ausreichend durch offizielle  Libraries unterstützt beziehungsweise dokumentiert.
+
 
 ## Zusammenfassung und Ausblick
+
+Insgesamt war unser Projekt erfolgreich.
+
+Mithilfe der Layers lässt sich visuell erkennen, welche Messwerte miteinander korellieren.
+Insbesondere das Verhältnis von Verkehr und Feinstaub ist merkbar:
+In den Stuttgarter Vierteln Karlshöhe und Europaviertel ist eine gleichzeitig Erhöhung von Verkehrsbelastung und Feinstaubwerten beobachtbar.
+
+Durch die Visualisierung des Geländes lässt sich zu manchen Zeiten eine mögliche Korellation zwischen der "Kessellage" Stuttgarts, in der vergleichsweise erhöhte Feinstaubwerte vorliegen, und dem umgebenden Land mit tendenziell geringeren Feinstauberwerten erkennen.
+
+Die Luftfeuchtigkeit scheint nach visuellen Eindrücken nicht mit Feinstaubwerten zu korellieren, da sowohl in Bereichen mit erhöhter Luftfeuchtigkeit wie Obertürkheim als auch in Bereichen mit niedriger Luftfeuchtigkeit wie dem Heusteigviertel.
+
+Bei Temperatur- und Druckwerten bestehen keine bemerkbaren lokalen Unterschiede, so dass ein Einfluss auf die Feinstaubwerte erkennbar werden könnte.
+
+Als weitere Schritte könnten durch das Sammeln von Daten über einen längeren Zeitraum auch Layer erstellt werden, die nicht nur einen Sensorwert repräsentieren, sondern den Korellationskoeffizienten zwischen mehreren Messwerten ausdrücken.
+So wäre es beispielsweise möglich, die vermutete Korellation zwischen Verkehr und Feinstaub objektiver zu belegen.
 
 
 ## Anhänge
