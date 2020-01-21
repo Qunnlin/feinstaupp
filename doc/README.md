@@ -101,8 +101,9 @@ Für eine gleichmäßige Darstellung der Sensorendaten wählen wir eine Matrix a
 
 ### Implementierung des Interpolations-Algorithmus
 Da sich nicht innerhalb jeder Kachel ein Sensor finden lässt begannen wir mit der Entwicklung eines Algorithmus zur Interpolation von gemittelten Sensorwerten für die Kacheln.
-Für diese Aufgabe wählten wir die Sprache Purescript, die durch ihre statische Typisierung besser für das sichere Implementieren von Datenstrukturen und Algorithmen geeignet ist als Javascript. Da Purescript zu Javascript kompiliert, versprachen wir uns eine nahtlose Einbindung mit der restlichen Anwendung.
-Wir entschieden uns in diesem Schritt für einen Algorithmus, der mit jeder Kachel die besten Sensorwerte aus den verschiedenen Himmelsrichtungen assoziiert.
+Für diese Aufgabe wählten wir die Sprache Purescript, die durch ihre statische Typisierung und algebraische Datentypen besser für das sichere Implementieren von Datenstrukturen und Algorithmen geeignet ist als Javascript. Da Purescript zu Javascript kompiliert, versprachen wir uns eine nahtlose Einbindung mit der restlichen Anwendung.
+Das repository für den Purescript-Code befindet sich unter [https://www.github.com/nicmr/sensor-tiles](https://www.github.com/nicmr/sensor-tiles).
+Wir entschieden uns in diesem Schritt für einen Algorithmus, der mit jeder Kachel den besten Sensorwerte aus jeder der vier Himmelsrichtungen assoziiert.
 
 
 ### Implementierung des Algorithmus zur Koordinatenübersetzung
@@ -112,6 +113,9 @@ Auch dieser wurde in Purescript implementiert.
 
 
 ### Integration der Algorithmen in die restliche Anwendung
+
+Die Purescript library kann leicht über das Javascript Dependency Management System [npm](npmjs.com) eingebunden werden.
+Dazu wurde der Purescript Code als CommonJS-Modul kompiliert und auf [https://www.npmjs.com/package/@gwenmohr/sensor-tiles-js](https://www.npmjs.com/package/@gwenmohr/sensor-tiles-js) in die Dependency Registry eingetragen.
 
 Leider war es schwieriger als erwartet, die vom Purescript-Code generierten Datenstrukturen in leserlichen Javascript-Datenstrukturen zu umzuwandeln. Die Ursache dafür liegt vermutlich an unserer geringen Erfahrung mit Purescript und dem Fehlen eines einfachen Werkzeugs zur Umwandlung von komplexen Datenstrukturen wie TreeMaps in simple Javascript Datenstrukturen.
 Mit einer Funktion zum Parsen der Purescript Datenstrukturen gelang es uns dennoch, die Daten gut leserlich zur Weiterverarbeitung vorzubereiten.
