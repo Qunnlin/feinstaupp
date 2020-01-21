@@ -16,6 +16,7 @@
     - [Mitteln der Sensordaten mit Inverser Distanzwichtung](#mitteln-der-sensordaten-mit-inverser-distanzwichtung)
     - [Normalisierung und Umwandlung der Daten in Farbgradienten](#normalisierung-und-umwandlung-der-daten-in-farbgradienten)
     - [Darstellung als Layer über der Karte](#darstellung-als-layer-%c3%bcber-der-karte)
+    - [Darstellung von Winddaten](#darstellung-von-winddaten)
     - [UI - Elemente und Legende](#ui---elemente-und-legende)
   - [Bewertung](#bewertung)
   - [Zusammenfassung und Ausblick](#zusammenfassung-und-ausblick)
@@ -39,7 +40,7 @@ Als erster Meilenstein des Projekts soll mit einer Karten-API eine Karte von Stu
 Anschließend sollen die Umwelt- und Feinstaubdaten von APIs abgefragt werden.
 Aus den erhaltenen Daten sollen verschiedenen Layer erstellt werden, die über die Karte gelegt werden können.
 Diese Layer sollen die Stärke der jeweiligen Ausprägung der Daten farblich darstellen.
-Durch das aktivieren von mehreren Layers wird visuell erkennbar, ob und an welchen Orten eine Korellation zwischen den verschiedenen Datenätzen besteht.
+Durch das aktivieren von mehreren Layern wird visuell erkennbar, ob und an welchen Orten eine Korellation zwischen den verschiedenen Datenätzen besteht.
 
 
 
@@ -49,21 +50,22 @@ Der Code der Umsetzung ist auf [https://github.com/Qunnlin/feinstaupp](https://g
 
 ### Implementierung einer Web-Applikation in Vue.js
 
-Vue.js erlaubt das Verbinden von HTML-Markup und Javascript-Code in *.vue*-Dateien.
+Um unsere Web-Applikation zu entwickeln haben wir das Single Page JavaScript Framework ausgewählt. Vue.js erlaubt das Verbinden von HTML-Markup und Javascript-Code in *.vue*-Dateien. 
 Die Webapplikation folgt einer simplen Struktur:
-Die Gesamtstruktur des Projekts wird durch die Datei *App.vue* festgelegt. Der Code, der mit der Kartenvisualisierung zu tun hat, findet sich in der Komponente *components/GoogleMap.vue*.
+Die Gesamtstruktur des Projekts wird durch die Datei *App.vue* festgelegt. In dieser Datei können verschiedene Komponenten hinzugefügt, welche ihrer Gesamtheit die Applikation definieren.  Der Code, der mit der Kartenvisualisierung zu tun hat, findet sich in der Komponente *components/GoogleMap.vue*.
 
 
 ### Grafischer Überblick über Datenfluss durch die Anwendung
 
 
-![Datenflussdiagramm](./Diagram.png)
+![Datenflussdiagramm](./Diagram.png)  
+<center>Abb. 1: Datenflussdiagramm Feinstaupp</center>
 
 
 
 ### Integration der Karten API
 
-Als erste Karten API fasssten wir die HERE API ins Auge,
+Als erste Karten API fassten wir die HERE API ins Auge,
 da sie über dieselbe API auch Verkehrs und Wetterdaten bietet.
 Auch die Google Maps API bietet direkt über die Maps API Verkehrsdaten.
 Im Vergleich stellte sich die Google Maps API aber durch umfassendere und genauere Verkehrsdaten als die bessere Alternative heraus. Auch die integrierten Wetterdaten der HERE API stellte sich nicht als Vorteil heraus, da es genug andere Quellen für bessere Daten gab.
@@ -71,7 +73,7 @@ Im Vergleich stellte sich die Google Maps API aber durch umfassendere und genaue
 ### Integration Daten APIs
 
 
-Die Integration von verschiedenen Daten-APIs erfolgt über die einen http-Request mithilfe der Javascript-Funktion *fetch* an die URL der jeweiligen API.
+Die Integration von verschiedenen Daten-APIs erfolgt über einen http-Request mithilfe der Javascript-Funktion *fetch* an die URL der jeweiligen API.
 Dabei verwenden wir folgende Daten-APIs:
 
 - Luftdaten von *luftdaten.info*
@@ -93,6 +95,8 @@ Die zurückgegebenen Daten enthalten stets den Messwert eines Sensors und die Ko
 
 Für eine gleichmäßige Darstellung der Sensorendaten wählen wir eine Matrix aus gleichgroßen Kacheln. Diese Matrix generieren wir aus den definierten Grenzen unseres Kartenabschnittes und einer gewählten horizontalen Auflösung. Dieses Gatter spannt sich von Nord-Westen nach Süd-Osten und wird als geoJSON Objekt gespeichert um eine visualisierung zu vereinfachen.
 
+![Tile Matrix visualisiert](grid_marker.PNG)
+<center>Abb. 2: Visualisierte Tile Matrix mit Markern für alle Feinstaubsensoren</center>
 
 
 ### Implementierung des Interpolations-Algorithmus
@@ -114,8 +118,15 @@ Mit einer Funktion zum Parsen der Purescript Datenstrukturen gelang es uns denno
 
 
 ### Mitteln der Sensordaten mit Inverser Distanzwichtung
-Letztendlich mussten wir noch einen Algorithmus entwickeln, der die mit jeder Kachel assoziierten Sensorwerte gegeinander aufwiegt. Hierfür wählten wir die Inverse Distanzgewichtung, die wir ebenfalls in Javascript implementierten.
+Letztendlich mussten wir noch einen Algorithmus entwickeln, der die mit jeder Kachel assoziierten Sensorwerte gegeneinander aufwiegt. Hierfür wählten wir die *Inverse Distanzgewichtung*, einem Interpolationsverfahren der Geostatistik zur einfachen Interpolation von Daten mit räumlicher Abhängigkeit, die wir ebenfalls in Javascript implementierten.  
+Dabei wird die Summe der inversen Distanz *d* multipliziert mit dem Sensorwert *v* durch die Summe der inversen Distanzen *d* geteilt.
+
+![Inverse Distanz Gewichtung](idw.gif)
+
+<center>Abb. 3: Inverse Distanzgewichtung</center>
 Der resultierenden Wert bildet den Richtwert für die Einfärbung jeder Kachel.
+
+
 
 
 ### Normalisierung und Umwandlung der Daten in Farbgradienten
@@ -131,6 +142,9 @@ Dies erforderte fachspezifische Nachforschungen für die akzeptablen Werte der v
 
 Mit diesem Wissen konnten wir eine Funktion implementieren, die anhand der Grenzwerte die absoluten Sensorwerte in einen pro Datenkategorie unterschiedlichen Farbverlauf einordnet.
 
+![Interpoliertes Grid](grid2.PNG)
+<center>Abb. 4: Interpolierte Kacheln, eingefärbt in Tile Matrix</center>
+
 ### Darstellung als Layer über der Karte
 
 Um die Datenmatrix als Layer über die Google Maps API darzustellen, müssen sie ins GeoJSON-Format transformiert werden.
@@ -139,6 +153,16 @@ In diesem Schritt werden auch die Indizes der Kachelmatrix wieder in Koordinaten
 Anschließend können die als GeoJSON formatierten Daten an die Google Maps API übergeben werden, die diese dann als Layer rendert.
 
 ![Interpolation](./interpolation_p1.PNG)
+<center>Abb. 5: Aktiviertes Daten Overlay</center>
+
+
+### Darstellung von Winddaten
+
+Die Winddaten, welche wir von der OpenWeatherMaps API erhalten, werden durch einen Pfeil visualisiert welcher in Windrichtung zeigt. Die Pfeillänge impliziert die Windgeschwindigkeit. Durch das klicken auf die zugehörige Wetterstation, deren Symbol dem aktuellen Wetter entspricht, können genauere Daten erhalten werden.
+
+![Winddata](wetterstation.PNG)
+<center>Abb. 6: Visualisierte Winddaten und Wetterinformationen</center>
+
 
 ### UI - Elemente und Legende
 
@@ -149,15 +173,19 @@ Außerdem lässt sich zwischen einem Karten- und Satellitenbild wechseln und die
 Für unsere Anwendung haben wir zusätzlich ein *Layer Control*-Element angelegt. Mit diesem können die verschiedenen Datenvisualisierungslayer (de)aktiviert werden.
 
 ![Layer Control](./controls.PNG)
+<center>Abb. 7: Control Layer</center>
+
 
 Über zusätzliche Sensor-Checkboxen können die exakten Sensorpositionen der einzelnen Kategorien eingeblendet werden.
 
 ![Interpolation with markers](./interpolation_p1_marker.PNG)
+<center>Abb. 8: Datenoverlay mit Markern an Sensorenstandpunkten</center>
 
 
 Darüber hinaus haben wir auch ein *Legend*-Element angelegt, das automatisch eine Legende zu den zum aktuellen Zeitpunkt ausgewählten Daten anzeigt.
 
 ![Legende](./legende.PNG)
+<center>Abb. 9: Legende</center>
 
 
 
