@@ -116,7 +116,7 @@ Auch dieser wurde in Purescript implementiert.
 ### Integration der Algorithmen in die restliche Anwendung
 
 Die Purescript library kann leicht über das Javascript Dependency Management System [npm](npmjs.com) eingebunden werden.
-Dazu wurde der Purescript Code als CommonJS-Modul kompiliert und auf [https://www.npmjs.com/package/@gwenmohr/sensor-tiles-js](https://www.npmjs.com/package/@gwenmohr/sensor-tiles-js) in die Dependency Registry eingetragen.
+Dazu wurde der Purescript Code als CommonJS-Modul kompiliert und als Paket [@gwenmohr/sensor-tiles-js](https://www.npmjs.com/package/@gwenmohr/sensor-tiles-js) in die Dependency Registry eingetragen.
 
 Leider war es schwieriger als erwartet, die vom Purescript-Code generierten Datenstrukturen in leserlichen Javascript-Datenstrukturen zu umzuwandeln. Die Ursache dafür liegt vermutlich an unserer geringen Erfahrung mit Purescript und dem Fehlen eines einfachen Werkzeugs zur Umwandlung von komplexen Datenstrukturen wie TreeMaps in simple Javascript Datenstrukturen.
 Mit einer Funktion zum Parsen der Purescript Datenstrukturen gelang es uns dennoch, die Daten gut leserlich zur Weiterverarbeitung vorzubereiten.
