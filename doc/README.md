@@ -83,7 +83,7 @@ Dabei verwenden wir folgende Daten-APIs:
     - Luftfeuchtigkeit
     - Windgeschwindigkeit & Richtung
 - Verkehrsdaten von der erwähnten Google Maps API
-- Geländedaten, ebenfalls von der Google Maps API
+- Topografische Geländedaten, ebenfalls von der Google Maps API
 
 Um Bandbreite zu sparen und nicht im nachhinein die Sensoren filtern zu müssen, fragen wir gezielt nur die Sensoren im Raum Stuttgart ab.
 Die zurückgegebenen Daten enthalten stets den Messwert eines Sensors und die Koordinaten des Sensorstandorts.
@@ -141,7 +141,9 @@ Anschließend können die als GeoJSON formatierten Daten an die Google Maps API 
 
 ### UI - Elemente und Legende
 
-Google Maps bietet bereits vier Elemente für das User Interface: Zwei Buttons um den Zoom der Karte zu verändern, einen Vollbild-Button und einen "Street-View"-Button.
+Google Maps bietet bereits einige Elemente für das User Interface:
+Zwei Buttons um den Zoom der Karte zu verändern, einen Vollbild-Button und einen "Street-View"-Button.
+Außerdem lässt sich zwischen einem Karten- und Satellitenbild wechseln und die Topografische Geländevisualisierung aktivieren.
 
 Für unsere Anwendung haben wir zusätzlich ein *Layer Control*-Element angelegt. Mit diesem können die verschiedenen Datenvisualisierungslayer (de)aktiviert werden.
 
@@ -182,7 +184,7 @@ Mithilfe der Layers lässt sich visuell erkennen, welche Messwerte miteinander k
 Insbesondere das Verhältnis von Verkehr und Feinstaub ist merkbar:
 In den Stuttgarter Vierteln Karlshöhe und Europaviertel ist eine gleichzeitig Erhöhung von Verkehrsbelastung und Feinstaubwerten beobachtbar.
 
-Durch die Visualisierung des Geländes lässt sich zu manchen Zeiten eine mögliche Korellation zwischen der "Kessellage" Stuttgarts, in der vergleichsweise erhöhte Feinstaubwerte vorliegen, und dem umgebenden Land mit tendenziell geringeren Feinstauberwerten erkennen.
+Durch die topografische Visualisierung Geländes lässt sich zu manchen Zeiten eine mögliche Korellation zwischen der "Kessellage" Stuttgarts, in der vergleichsweise erhöhte Feinstaubwerte vorliegen, und dem umgebenden Land mit tendenziell geringeren Feinstauberwerten erkennen.
 
 Die Luftfeuchtigkeit scheint nach visuellen Eindrücken nicht mit Feinstaubwerten zu korellieren, da sowohl in Bereichen mit erhöhter Luftfeuchtigkeit wie Obertürkheim als auch in Bereichen mit niedriger Luftfeuchtigkeit wie dem Heusteigviertel.
 
