@@ -74,16 +74,17 @@ Im Vergleich stellte sich die Google Maps API aber durch umfassendere und genaue
 Die Integration von verschiedenen Daten-APIs erfolgt über die einen http-Request mithilfe der Javascript-Funktion *fetch* an die URL der jeweiligen API.
 Dabei verwenden wir folgende Daten-APIs:
 
-- Feinstaubdaten von *luftdaten.info*
+- Luftdaten von *luftdaten.info*
     - Feinstaub mit einem Partikeldurchmesser von maximal 2,5 Mikrometern, *"PM10"*
     - Feinstaub mit einem Partikeldurchmesser von maximal 10 Mikrometern, *PM2.5"*
-- Wettterdaten von *openweathermap.org*
     - Temperatur
     - Luftdruck
     - Luftfeuchtigkeit
+- Wettterdaten von *openweathermap.org*
     - Windgeschwindigkeit & Richtung
-- Verkehrsdaten von der erwähnten Google Maps API
-- Topografische Geländedaten, ebenfalls von der Google Maps API
+- Verschiedene Daten von der erwähnten Google Maps API
+    - Topografische Geländedaten
+    - Verkehrsdaten
 
 Um Bandbreite zu sparen und nicht im nachhinein die Sensoren filtern zu müssen, fragen wir gezielt nur die Sensoren im Raum Stuttgart ab.
 Die zurückgegebenen Daten enthalten stets den Messwert eines Sensors und die Koordinaten des Sensorstandorts.
